@@ -132,18 +132,6 @@ const visibleStats = ALL_STATS;
     }
   }
 
-  async function tryMaster() {
-    const { data } = await supabase.from('master_settings').select('master_password_hash').eq('id', 1).maybeSingle();
-    if (data && verifyPassword(masterInput, data.master_password_hash)) {
-      setMasterMode(true);
-      setUnlocked(true);
-      setShowPasswordModal(false);
-      setPasswordError('');
-    } else {
-      setPasswordError('마스터 비밀번호가 틀렸습니다');
-    }
-  }
-
   function adjustStat(statKey: string, delta: number) {
     if (!char || !unlocked) return;
     if (FIXED_BASE_STATS.includes(statKey) && !masterMode) return;
