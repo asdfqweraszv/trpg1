@@ -188,7 +188,7 @@ export function getSpeciesPassiveDescription(char: Character, equipment: Equipme
     case 'undead':
       return `불사의 의지: 사망 시 최대 체력의 20%(${getUndeadReviveHp(char, equipment)})로 부활합니다.`;
     case 'dwarf':
-      return '완고한 장인: 장비를 강화할 수 있습니다. (준비 중)';
+      return '완고한 장인: 장비를 강화할 수 있습니다. ';
     case 'beastkin': {
       const maxHp = getEffectiveStat(char, 'hp', equipment);
       const enraged = isBeastkinEnraged(char.current_hp, maxHp);
