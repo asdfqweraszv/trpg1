@@ -53,15 +53,11 @@ export function isBeastkinEnraged(currentHp: number, maxHp: number): boolean {
 export function getEffectiveStat(char: Character, statKey: string, equipment: Equipment[]): number {
   let base = getTotalStat(char, statKey, equipment);
 
-  if (char.species === 'vampire' && ['hp', 'attack', 'spell', 'mana'].includes(statKey)) { 
+  if (char.species === 'vampire' && ['hp', 'attack', 'spell'].includes(statKey)) { 
     const hpTotal = getTotalStat(char, 'hp', equipment);
     const attackTotal = getTotalStat(char, 'attack', equipment);
     const spellTotal = getTotalStat(char, 'spell', equipment);
     const max = Math.max(hpTotal, attackTotal, spellTotal);
-
-    if (statKey === 'mana') {
-      return max;
-    }
 
     if (statKey === 'hp') {
       return max;
