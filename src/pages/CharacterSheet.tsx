@@ -631,22 +631,31 @@ const visibleStats = ALL_STATS;
                           {enhanceMessage}
                         </div>
                       )}
-                      <div className="grid grid-cols-2 gap-2">
+                       <div className="grid grid-cols-2 gap-2">
                         {ALL_STATS.map(s => {
-  const bonusKey = `bonus_${s}` as keyof Equipment;
-  const val = (eq[bonusKey] as number) ?? 0;
-  const enhanceBonus = (eq.enhance_level ?? 0); // ★ 강화 수치 추가
-  const totalBonus = val + enhanceBonus;
-  return (
-    <div key={s} className="flex items-center gap-2">
-      <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
-      <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-        {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
-      </span>
-    </div>
-  );
-})}
-                    </div>
+                          const bonusKey = `bonus_${s}` as keyof Equipment;
+                          const val = (eq[bonusKey] as number) ?? 0;
+                          const enhanceBonus = (eq.enhance_level ?? 0);
+                          const totalBonus = val + enhanceBonus;
+                          return (
+                            <div key={s} className="flex items-center gap-2">
+                              <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
+                              {masterMode ? (
+                                <input
+                                  type="number"
+                                  value={val}
+                                  onChange={e => updateEquipmentField(eq.id!, bonusKey, Number(e.target.value))}
+                                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
+                                />
+                              ) : (
+                                <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
+                                  {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                   ) : (
                     <div className="text-xs text-gray-600 italic">장비 없음</div>
                   )}
