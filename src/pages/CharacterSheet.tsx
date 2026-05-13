@@ -138,34 +138,6 @@ const visibleStats = ALL_STATS;
     }
   }
 
-  async function tryMaster() {
-    const { data } = await supabase.from('master_settings').select('master_password_hash').eq('id', 1).maybeSingle();
-    if (data && verifyPassword(masterInput, data.master_password_hash)) {
-      setMasterMode(true);
-      setUnlocked(true);
-      setShowPasswordModal(false);
-      setPasswordError('');
-    } else {
-      setPasswordError('마스터 비밀번호가 틀렸습니다');
-    }
-  }
-
-  function adjustStat(statKey: string, delta: number) {
-    if (!char || !unlocked) return;
-    if (FIXED_BASE_STATS.includes(statKey) && !masterMode) return;
-    const spentKey = `spent_${statKey}` as keyof Character;
-    const currentSpent = (char[spentKey] as number) ?? 0;
-    if (delta > 0 && statPoints <= 0 && !masterMode) return;
-    if (delta < 0 && currentSpent <= 0 && !masterMode) return;
-    const newSpent = currentSpent + delta;
-    if (newSpent < 0 && !masterMode) return;
-    const updates: Partial<Character> = { [spentKey]: Math.max(0, newSpent) };
-    if (!masterMode) {
-      updates.stat_points = statPoints - delta;
-    }
-    saveChar(updates);
-  }
-
   function adjustBaseStat(statKey: string, delta: number) {
     if (!char || !masterMode) return;
     const baseKey = `stat_${statKey}` as keyof Character;
