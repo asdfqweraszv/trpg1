@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity } from '../types/character';
+import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job  } from '../types/character';
 import { getTotalStat, getEffectiveStat, verifyPassword } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
@@ -412,6 +412,8 @@ const visibleStats = ALL_STATS;
               const jobBonus = JOB_BONUSES[char.job as Job];
             if (jobBonus && jobBonus.statModifiers[statKey as keyof Stats]) {
               base += jobBonus.statModifiers[statKey as keyof Stats]!;
+              const jobBonus = JOB_BONUSES[char.job as Job];
+              const jobBonusValue = jobBonus?.statModifiers[s as keyof typeof jobBonus.statModifiers] ?? 0;
           }
 
               return (
@@ -429,6 +431,12 @@ const visibleStats = ALL_STATS;
                       <span>기본</span>
                       <span className="text-gray-400">{char[`stat_${s}` as keyof Character] as number}</span>
                     </div>
+                    {jobBonusValue !== 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-yellow-400">직업</span>
+                        <span className="text-yellow-400">{jobBonusValue > 0 ? `+${jobBonusValue}` : jobBonusValue}</span>
+                      </div>
+                    )}
                     {!isFixed && spent > 0 && (
                       <div className="flex justify-between">
                         <span>투자</span>
