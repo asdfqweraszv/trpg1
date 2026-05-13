@@ -14,15 +14,87 @@ export type Species =
 
 export type Job = '광전사' | '몽크' | '탱커' | '바드' | '마법사' | '궁수';
 
+export interface JobSkill {
+  requiredIntelligence: number;
+  name: string;
+  description: string;
+  cost?: string;
+}
+
 export interface JobBonus {
   label: string;
+  description: string; 
   statModifiers: Partial<Stats>;
+  skills: JobSkill[]; 
 }
 
 export const JOB_BONUSES: Record<Job, JobBonus> = {
   몽크: {
     label: '몽크',
+    description: '민첩+2, 체력+2, 주문력+2, 공격력+2',
     statModifiers: { agility: 2, hp: 2, spell: 2, attack: 2 },
+    skills: [
+      {
+        requiredIntelligence: 5,
+        name: '재빠른 주먹',
+        description: '공격력에 70%에 해당하는 데미지로 적을 1회 공격해 물리 피해를 입힙니다. 민첩이 8 증가할 때마다 주먹질의 횟수가 1회씩 늘어납니다.',
+        cost: '마나-6',
+      },
+      {
+        requiredIntelligence: 10,
+        name: '타오르는 정신',
+        description: '자신의 체력을 불태워 3턴간 주먹에 불꽃을 두릅니다. 이후 몽크의 공격은 추가적으로 주문력에 70%에 해당하는 피해량을 갖습니다. 타오르는 정신을 사용하고 적에게 공격을 적중 시 마나를 1회복합니다.',
+        cost: '체력-10',
+      },
+      {
+        requiredIntelligence: 12,
+        name: '영혼의 공명',
+        description: '적에게 공격 적중 시 표식을 남깁니다. 표식은 최대 5개까지 중첩됩니다. 적의 턴이 종료되고 다시 본인의 턴으로 돌아왔을 때 남아있는 표식 1당 체력을 1씩 회복합니다.',
+        cost: '패시브',
+      },
+      {
+        requiredIntelligence: 15,
+        name: '영혼의 발현',
+        description: '영혼의 공명이 쌓여있는 모든 적의 영혼을 한번에 폭발시킵니다. 영혼의 공명이 폭발 시 주문력에 40% × 표식의 수 만큼에 마법피해를 한번에 넣습니다.',
+        cost: '마나-15',
+      },
+      {
+        requiredIntelligence: 18,
+        name: '급소타격',
+        description: '적 1명의 급소에 주먹을 강하게 내질러 공격력에 100%에 해당하는 피해를 입히며 1턴간 기절시킵니다.',
+        cost: '마나-12',
+      },
+      {
+        requiredIntelligence: 20,
+        name: '금강변환',
+        description: '3턴간 자신의 무장을 해제하며 공격에 모든 힘을 투자합니다. 가지고 있는 방어력과 마법저항력을 50% 각각 공격력, 주문력으로 전환됩니다.',
+        cost: '마나-10',
+      },
+      {
+        requiredIntelligence: 23,
+        name: '기류의 보호',
+        description: '적의 공격을 회피 성공 시 최대체력에 20% 해당하는 보호막을 얻습니다.',
+        cost: '패시브',
+      },
+      {
+        requiredIntelligence: 25,
+        name: '찬란한 후광',
+        description: '매력에 30%에 해당하는 방어력과 마법저항력을 얻습니다.',
+        cost: '패시브',
+      },
+      {
+        requiredIntelligence: 27,
+        name: '명상',
+        description: '1턴간 명상에 돌입하며 명상 상태에 돌입하고 다음 턴이 돌아올 때까지 어떠한 행동도 할 수 없습니다. 명상이 끝난 후에는 자신의 몸에 걸려있는 모든 디버프를 제거하며 1턴간 다음 첫 일반 공격이 고정피해로 들어갑니다.',
+        cost: '마나-12',
+      },
+      {
+        requiredIntelligence: 30,
+        name: '심기체',
+        description: '심.기.체 중 하나의 상태에 몰입하며 몰입시 각기다른 효과를 얻습니다.\n\n심: "타오르는 정신"과 "영혼의 공명"으로 얻는 회복량이 2로 증가.\n\n기: "영혼의 발현"이 50%로 증가하며 "재빠른 주먹"이 80%로 상승.\n\n체: "찬란한 후광"으로 얻는 수치가 30%→40%로 증가하며 "기류의 보호"로 얻는 보호막이 최대체력 30%로 증가.',
+        cost: '마나-?',
+      },
+    ],
   },
   바드: {
     label: '바드',
