@@ -86,22 +86,24 @@ export default function CharacterList({ onSelect, onCreate }: Props) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-1.5 text-red-400">
-                      <Heart size={14} />
-                      <span>{char.current_hp}/{char.stat_hp + char.spent_hp}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-blue-400">
-                      <Zap size={14} />
-                      <span>{char.current_mana}/{char.stat_mana + char.spent_mana}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-orange-400">
-                      <Swords size={14} />
-                      <span>{char.stat_attack + char.spent_attack}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sky-400">
-                      <Shield size={14} />
-                      <span>{char.stat_defense}</span>
+                    <div className="flex items-center gap-3">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+                      <div className="flex items-center gap-1 text-red-400">
+                        <Heart size={10} />
+                        <span>{char.current_hp}/{char.stat_hp + char.spent_hp}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-blue-400">
+                        <Zap size={10} />
+                        <span>{char.current_mana}/{char.stat_mana + char.spent_mana}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-orange-400">
+                        <Swords size={10} />
+                        <span>{char.stat_attack + char.spent_attack}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sky-400">
+                        <Shield size={10} />
+                        <span>{char.stat_defense}</span>
+                      </div>
                     </div>
                     <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                   </div>
