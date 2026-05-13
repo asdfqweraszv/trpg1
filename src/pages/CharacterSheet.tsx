@@ -209,6 +209,7 @@ const visibleStats = ALL_STATS;
   }
 
   async function enhanceEquipment(eq: Equipment) {
+    
     if (!char || char.species !== 'dwarf') return;
     
     const currentLevel = eq.enhance_level ?? 0;
