@@ -5,8 +5,10 @@ import { rollD20, applySpeciesBonus, applyJobBonus } from '../utils/stats';
 import { Dice5, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Props {
+  characterId: string;
   onBack: () => void;
-  onCreated: (id: string) => void;
+  masterMode: boolean;           // ★ 추가
+  setMasterMode: (mode: boolean) => void; // ★ 추가
 }
 
 const ROLLABLE_STATS = ['hp', 'attack', 'spell', 'mana', 'intelligence', 'agility', 'charm'];
