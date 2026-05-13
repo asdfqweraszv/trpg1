@@ -207,7 +207,8 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').delete().eq('id', id);
     setEquipment(prev => prev.filter(e => e.id !== id));
   }
-   async function enhanceEquipment(eq: Equipment) {
+
+  async function enhanceEquipment(eq: Equipment) {
     if (!char || char.species !== 'dwarf') return;
     
     const currentLevel = eq.enhance_level ?? 0;
