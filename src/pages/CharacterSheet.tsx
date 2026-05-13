@@ -426,12 +426,6 @@ const visibleStats = ALL_STATS;
                       <span>기본</span>
                       <span className="text-gray-400">{char[`stat_${s}` as keyof Character] as number}</span>
                     </div>
-                    {jobBonusValue !== 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-yellow-400">직업</span>
-                        <span className="text-yellow-400">{jobBonusValue > 0 ? `+${jobBonusValue}` : jobBonusValue}</span>
-                      </div>
-                    )}
                     {!isFixed && spent > 0 && (
                       <div className="flex justify-between">
                         <span>투자</span>
