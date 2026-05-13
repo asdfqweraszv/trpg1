@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Character, SPECIES_LABELS, JOB_LIST } from '../types/character';
-import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight } from 'lucide-react';
+import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, Star } from 'lucide-react';
 
 interface Props {
   onSelect: (id: string) => void;
