@@ -156,7 +156,7 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
     setLoading(true);
     setError('');
     try {
-      const statsToSave: Record<string, number> = {};
+      let statsToSave: Record<string, number> = {};
       ALL_STATS.forEach((s) => {
         statsToSave[s] = finalStats[s] ?? 0;
       });
