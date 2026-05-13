@@ -99,3 +99,54 @@ export function hashPassword(password: string): string {
 export function verifyPassword(input: string, stored: string): boolean {
   return input === stored;
 }
+
+
+// ★ 턴당 체력 회복량 (오크)
+export function getHpRegen(char: Character, equipment: Equipment[]): number {
+  if (char.species !== 'orc') return 0;
+  const maxHp = getEffectiveStat(char, 'hp', equipment);
+  return 1 + Math.floor(maxHp / 10);
+}
+
+// ★ 턴당 마나 회복량 (엘프)
+export function getManaRegen(char: Character, equipment: Equipment[]): number {
+  if (char.species !== 'elf') return 0;
+  const maxMana = getEffectiveStat(char, 'mana', equipment);
+  return 1 + Math.floor(maxMana / 10);
+}
+
+// ★ 받는 피해 감소량 (리자드맨)
+export function getDamageReduction(char: Character, equipment: Equipment[]): number {
+  if (char.species !== 'lizardman') return 0;
+  const defense = getEffectiveStat(char, 'defense', equipment);
+  const magicResist = getEffectiveStat(char, 'magic_resist', equipment);
+  return 1 + Math.floor((defense + magicResist) / 10);
+}
+
+// ★ 불사의 의지 발동 여부 (언데드) - On/Off
+export function canUndeadRevive(char: Character): boolean {
+  return char.species === 'undead';
+}
+
+// ★ 불사의 의지 부활 시 회복 체력량 (언데드)
+export function getUndeadReviveHp(char: Character, equipment: Equipment[]): number {
+  if (char.species !== 'undead') return 0;
+  const maxHp = getEffectiveStat(char, 'hp', equipment);
+  return Math.floor(maxHp * 0.2);
+}
+
+// ★ 패시브 효과 설명 통합 (UI 표시용)
+export function getSpeciesPassiveDescription(char: Character, equipment: Equipment[]): string {
+  switch (char.species) {
+    case 'orc':
+      return `재생: 매 턴 체력을 ${getHpRegen(char, equipment)} 회복합니다.`;
+    case 'elf':
+      return `마나의 흐름: 매 턴 마나를 ${getManaRegen(char, equipment)} 회복합니다.`;
+    case 'lizardman':
+      return `견고함: 받는 피해가 ${getDamageReduction(char, equipment)} 감소합니다.`;
+    case 'undead':
+      return `불사의 의지: 사망 시 최대 체력의 20%(${getUndeadReviveHp(char, equipment)})로 부활합니다.`;
+    default:
+      return '';
+  }
+}
