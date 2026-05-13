@@ -10,6 +10,7 @@ type Page =
 
 export default function App() {
   const [page, setPage] = useState<Page>({ type: 'list' });
+  const [masterMode, setMasterMode] = useState(false); // ★ 추가
 
   if (page.type === 'create') {
     return (
@@ -25,6 +26,8 @@ export default function App() {
       <CharacterSheet
         characterId={page.id}
         onBack={() => setPage({ type: 'list' })}
+        masterMode={masterMode}           // ★ 추가
+        setMasterMode={setMasterMode}     // ★ 추가
       />
     );
   }
