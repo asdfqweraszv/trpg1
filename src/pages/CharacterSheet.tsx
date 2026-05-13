@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job  } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription } from '../utils/stats';
+import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel } from '../utils/stats';
+import { rollD20 } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
   Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target
