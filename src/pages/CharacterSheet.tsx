@@ -7,6 +7,8 @@ import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
   Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target
 } from 'lucide-react';
+import { supabase, uploadAvatar } from '../lib/supabase';
+import { Camera } from 'lucide-react';
 
 interface Props {
   characterId: string;
