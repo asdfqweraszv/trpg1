@@ -290,21 +290,57 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
             <div>
               <label className="block text-sm text-gray-400 mb-3">직업 선택</label>
               <div className="grid grid-cols-3 gap-2">
-                {JOB_LIST.map((j) => (
-                  <button
-                    key={j}
-                    onClick={() => setJob(j)}
-                    className={`py-2.5 rounded-lg border font-medium text-sm transition-all ${
-                      job === j
-                        ? 'border-blue-500 bg-blue-950/30 text-white'
-                        : 'border-gray-800 bg-gray-900 text-gray-300 hover:border-gray-600'
-                    }`}
-                  >
-                    {j}
-                  </button>
-                ))}
-              </div>
+    {JOB_LIST.map((j) => {
+      const jobData = JOB_BONUSES[j];
+      const isSelected = job === j;
+      const isInfoShown = showJobInfo === j;
+      
+      return (
+        <div key={j}>
+          <button
+            onClick={() => {
+              setJob(j);
+              setShowJobInfo(isSelected ? (isInfoShown ? null : j) : j);
+            }}
+            className={`w-full py-2.5 rounded-lg border font-medium text-sm transition-all flex items-center justify-center gap-1 ${
+              isSelected
+                ? 'border-blue-500 bg-blue-950/30 text-white'
+                : 'border-gray-800 bg-gray-900 text-gray-300 hover:border-gray-600'
+            }`}
+          >
+            <span>{j}</span>
+            <span className="text-gray-500">
+              {isInfoShown ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </span>
+          </button>
+          
+          {isInfoShown && jobData && (
+            <div className="mt-2 p-3 bg-gray-800 rounded-lg border border-gray-700 text-xs text-gray-300 space-y-2 max-h-64 overflow-y-auto">
+              <p className="text-yellow-400 font-medium">{jobData.description}</p>
+              {jobData.skills.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  <p className="text-gray-400 font-medium">스킬 목록</p>
+                  {jobData.skills.map((skill, idx) => (
+                    <div key={idx} className="border-t border-gray-700 pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium">{skill.name}</span>
+                        <span className="text-blue-400 text-xs">[요구지능 {skill.requiredIntelligence}]</span>
+                      </div>
+                      <p className="text-gray-400 mt-1 whitespace-pre-line">{skill.description}</p>
+                      {skill.cost && (
+                        <p className="text-amber-400 mt-1">({skill.cost})</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</div>
 
             <button
               disabled={!name || !password}
