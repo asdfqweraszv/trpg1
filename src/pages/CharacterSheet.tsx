@@ -84,6 +84,7 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [undeadReviveUsed, setUndeadReviveUsed] = useState(false);
   const [machineOverloadUsed, setMachineOverloadUsed] = useState(false);
   const [enhanceMessage, setEnhanceMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const loadChar = useCallback(async () => {
     const { data: charData } = await supabase.from('characters').select('*').eq('id', characterId).maybeSingle();
