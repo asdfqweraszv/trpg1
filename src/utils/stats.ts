@@ -145,6 +145,27 @@ export function getMachineOverloadDescription(): string {
   return '과부화: 전투 당 한번, 현재 사용 가능한 스킬을 코스트 소모 없이 사용 가능합니다. 다음 1턴간 기절상태가 됩니다.';
 }
 
+// ★ 드워프 강화 난이도 테이블
+export function getEnhanceDifficulty(level: number): number {
+  const difficulties: Record<number, number> = {
+    0: 5,   // 0→1강: 5 이상
+    1: 10,  // 1→2강: 10 이상
+    2: 15,  // 2→3강: 15 이상
+    3: 20,  // 3→4강: 20 (대성공)
+  };
+  return difficulties[level] ?? 999; // 4강 이상 불가
+}
+
+// ★ 강화 가능 여부
+export function canEnhanceEquipment(char: Character): boolean {
+  return char.species === 'dwarf';
+}
+
+// ★ 강화 가능한 최대 레벨
+export function getMaxEnhanceLevel(): number {
+  return 4;
+}
+
 // ★ 패시브 효과 설명 통합 (UI 표시용)
 export function getSpeciesPassiveDescription(char: Character, equipment: Equipment[]): string {
   switch (char.species) {
