@@ -273,7 +273,6 @@ const visibleStats = ALL_STATS;
             <button onClick={tryUnlock} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium mb-3 transition-colors">
               잠금 해제
             </button>
-            </div>
             {passwordError && <p className="text-red-400 text-sm mt-2">{passwordError}</p>}
             <button onClick={() => setShowPasswordModal(false)} className="w-full mt-3 text-gray-500 hover:text-gray-300 text-sm transition-colors">
               취소
