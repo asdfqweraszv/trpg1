@@ -409,11 +409,7 @@ const visibleStats = ALL_STATS;
               const effective = getEffectiveStat(char, s, equipment);
               const base = getTotalStat(char, s, equipment);
               const hasEquipBonus = effective !== base || equipment.some(e => (e[`bonus_${s}` as keyof Equipment] as number) !== 0);
-              const jobBonus = JOB_BONUSES[char.job as Job];
-            if (jobBonus && jobBonus.statModifiers[statKey as keyof Stats]) {
-              base += jobBonus.statModifiers[statKey as keyof Stats]!;
-              const jobBonus = JOB_BONUSES[char.job as Job];
-              const jobBonusValue = jobBonus?.statModifiers[s as keyof typeof jobBonus.statModifiers] ?? 0;
+              const jobBonusValue = (JOB_BONUSES[char.job as Job]?.statModifiers[s as keyof Stats] ?? 0) as number;
           }
 
               return (
