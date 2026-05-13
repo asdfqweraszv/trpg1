@@ -94,6 +94,10 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   }, [characterId]);
 
   useEffect(() => {
+    loadChar();
+  }, [loadChar]);
+
+  useEffect(() => {
     if (masterMode) {
       setUnlocked(true);
     }
