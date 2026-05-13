@@ -5,6 +5,8 @@ import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight } from 'lucide-rea
 import { supabase, uploadAvatar } from '../lib/supabase';
 import { Camera } from 'lucide-react'; 
 
+const [uploading, setUploading] = useState(false);
+
 interface Props {
   onSelect: (id: string) => void;
   onCreate: () => void;
