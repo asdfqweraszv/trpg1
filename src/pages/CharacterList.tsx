@@ -86,7 +86,7 @@ export default function CharacterList({ onSelect, onCreate }: Props) {
                       </div>
                     </div>
                   </div>
-                    <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-3">
                     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
                       <div className="flex items-center gap-1 text-red-400">
                         <Heart size={10} />
@@ -100,9 +100,21 @@ export default function CharacterList({ onSelect, onCreate }: Props) {
                         <Swords size={10} />
                         <span>{char.stat_attack + char.spent_attack}</span>
                       </div>
+                      <div className="flex items-center gap-1 text-cyan-400">
+                        <Sparkles size={10} />
+                        <span>{char.stat_spell + char.spent_spell}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-green-400">
+                        <Wind size={10} />
+                        <span>{char.stat_agility + char.spent_agility}</span>
+                      </div>
                       <div className="flex items-center gap-1 text-sky-400">
                         <Shield size={10} />
                         <span>{char.stat_defense}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-teal-400">
+                        <Star size={10} />
+                        <span>{char.stat_magic_resist}</span>
                       </div>
                     </div>
                     <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
