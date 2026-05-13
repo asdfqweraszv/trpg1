@@ -2,4 +2,3 @@
 ALTER TABLE equipment ADD COLUMN IF NOT EXISTS enhance_level INTEGER DEFAULT 0;
 
 SELECT * FROM equipment LIMIT 1;
-
