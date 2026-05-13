@@ -14,6 +14,38 @@ export type Species =
 
 export type Job = '광전사' | '몽크' | '탱커' | '바드' | '마법사' | '궁수';
 
+export interface JobBonus {
+  label: string;
+  statModifiers: Partial<Stats>;
+}
+
+export const JOB_BONUSES: Record<Job, JobBonus> = {
+  몽크: {
+    label: '몽크',
+    statModifiers: { agility: 2, hp: 2, spell: 2, attack: 2 },
+  },
+  바드: {
+    label: '바드',
+    statModifiers: { mana: 4, charm: 5 },
+  },
+  궁수: {
+    label: '궁수',
+    statModifiers: { attack: 2, mana: 2, agility: 4 },
+  },
+  탱커: {
+    label: '탱커',
+    statModifiers: { hp: 5, defense: 3, magic_resist: 3 },
+  },
+  광전사: {
+    label: '광전사',
+    statModifiers: { hp: 3, attack: 3, defense: 1, magic_resist: 1 },
+  },
+  마법사: {
+    label: '마법사',
+    statModifiers: { mana: 3, intelligence: 3, spell: 3 },
+  },
+};
+
 export interface Stats {
   hp: number;
   attack: number;
