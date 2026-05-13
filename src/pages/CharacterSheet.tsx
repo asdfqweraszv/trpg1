@@ -555,7 +555,7 @@ const visibleStats = ALL_STATS;
           </div>
         )}
 
-        {tab === 'equipment' && (
+                {tab === 'equipment' && (
           <div className="space-y-3">
             {EQUIPMENT_SLOTS.map(slot => {
               const eq = equipment.find(e => e.slot_name === slot);
@@ -607,7 +607,9 @@ const visibleStats = ALL_STATS;
                           </span>
                         )}
                       </div>
-                       {char.species === 'dwarf' && unlocked && eq.item_name && (
+
+                      {/* 드워프 강화 버튼 */}
+                      {char.species === 'dwarf' && unlocked && eq.item_name && (
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-xs text-gray-500">
                             강화: +{eq.enhance_level ?? 0}강
@@ -628,12 +630,15 @@ const visibleStats = ALL_STATS;
                         </div>
                       )}
 
+                      {/* 강화 결과 메시지 */}
                       {enhanceMessage && (
                         <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
                           {enhanceMessage}
                         </div>
                       )}
-                       <div className="grid grid-cols-2 gap-2">
+
+                      {/* 스탯 보너스 목록 */}
+                      <div className="grid grid-cols-2 gap-2">
                         {ALL_STATS.map(s => {
                           const bonusKey = `bonus_${s}` as keyof Equipment;
                           const val = (eq[bonusKey] as number) ?? 0;
@@ -658,6 +663,7 @@ const visibleStats = ALL_STATS;
                           );
                         })}
                       </div>
+                    </div>
                   ) : (
                     <div className="text-xs text-gray-600 italic">장비 없음</div>
                   )}
