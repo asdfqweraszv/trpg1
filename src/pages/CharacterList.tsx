@@ -123,7 +123,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
                       </div>
                     </div>
                   </div>
-                                      <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
                       <div className="flex items-center gap-1 text-red-400">
                         <Heart size={10} />
