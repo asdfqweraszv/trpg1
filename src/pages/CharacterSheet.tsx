@@ -321,7 +321,6 @@ const visibleStats = ALL_STATS;
               {unlocked ? <Unlock size={14} /> : <Lock size={14} />}
               {unlocked ? '잠금' : '수정'}
             </button>
-            </button>
           </div>
         </div>
 
