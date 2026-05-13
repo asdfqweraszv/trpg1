@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { supabase, uploadAvatar } from '../lib/supabase';
 import { Camera } from 'lucide-react';
+import { supabase, uploadAvatar } from '../lib/supabase';
+import { Camera } from 'lucide-react';
 
 interface Props {
   characterId: string;
