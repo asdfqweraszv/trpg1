@@ -94,8 +94,10 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   }, [characterId]);
 
   useEffect(() => {
-    loadChar();
-  }, [loadChar]);
+    if (masterMode) {
+      setUnlocked(true);
+    }
+  }, [masterMode]);
 
   const maxHp = char ? getEffectiveStat(char, 'hp', equipment) : 0;
   const maxMana = char ? getEffectiveStat(char, 'mana', equipment) : 0;
