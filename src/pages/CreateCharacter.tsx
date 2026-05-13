@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Species, Job, JOB_LIST, SPECIES_LABELS, SPECIES_BONUSES, STAT_LABELS, FIXED_BASE_STATS } from '../types/character';
 import { rollD20, applySpeciesBonus } from '../utils/stats';
 import { Dice5, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { applyJobBonus } from '../utils/stats';
 
 interface Props {
   onBack: () => void;
