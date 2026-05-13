@@ -278,7 +278,15 @@ const visibleStats = ALL_STATS;
             {saving && <span className="text-xs text-gray-500 animate-pulse">저장 중...</span>}
             {masterMode && <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">마스터</span>}
             <button
-              onClick={() => unlocked ? (setUnlocked(false), setMasterMode(false)) : setShowPasswordModal(true)}
+              onClick={() => {
+  if (unlocked) {
+    setUnlocked(false);
+  } else if (masterMode) {
+    setUnlocked(true);
+  } else {
+    setShowPasswordModal(true);
+  }
+}}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
                 unlocked
                   ? 'border-green-700 bg-green-950/30 text-green-400 hover:bg-green-950/50'
