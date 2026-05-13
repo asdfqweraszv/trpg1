@@ -135,6 +135,16 @@ export function getUndeadReviveHp(char: Character, equipment: Equipment[]): numb
   return Math.floor(maxHp * 0.2);
 }
 
+// ★ 기계 생명체: 과부화 발동 여부 (On/Off)
+export function canMachineOverload(char: Character): boolean {
+  return char.species === 'machine';
+}
+
+// ★ 과부화 사용 시 효과 설명
+export function getMachineOverloadDescription(): string {
+  return '과부화: 전투 당 한번, 현재 사용 가능한 스킬을 코스트 소모 없이 사용 가능합니다. 다음 1턴간 기절상태가 됩니다.';
+}
+
 // ★ 패시브 효과 설명 통합 (UI 표시용)
 export function getSpeciesPassiveDescription(char: Character, equipment: Equipment[]): string {
   switch (char.species) {
@@ -146,6 +156,8 @@ export function getSpeciesPassiveDescription(char: Character, equipment: Equipme
       return `견고함: 받는 피해가 ${getDamageReduction(char, equipment)} 감소합니다.`;
     case 'undead':
       return `불사의 의지: 사망 시 최대 체력의 20%(${getUndeadReviveHp(char, equipment)})로 부활합니다.`;
+    case 'machine':  // ★ 추가
+      return getMachineOverloadDescription();
     default:
       return '';
   }
