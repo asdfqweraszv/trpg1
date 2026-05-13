@@ -51,6 +51,7 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSpeciesInfo, setShowSpeciesInfo] = useState<Species | null>(null);
+  const [showJobInfo, setShowJobInfo] = useState<Job | null>(null);
 
   // One-by-one rolling state
   const [rollingIndex, setRollingIndex] = useState(0);
