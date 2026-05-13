@@ -162,37 +162,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
           </div>
         )}
       </div>
-            {showMasterLogin && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-sm">
-            <h2 className="font-bold mb-4 text-lg">GM 로그인</h2>
-            <input
-              type="password"
-              value={masterPassword}
-              onChange={e => { setMasterPassword(e.target.value); setMasterError(''); }}
-              placeholder="비밀번호"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-2"
-              onKeyDown={e => e.key === 'Enter' && tryMasterLogin()}
-            />
-            <button
-              onClick={tryMasterLogin}
-              className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-medium transition-colors"
-            >
-              로그인
-            </button>
-            {masterError && <p className="text-red-400 text-sm mt-2">{masterError}</p>}
-            <button
-              onClick={() => { setShowMasterLogin(false); setMasterPassword(''); setMasterError(''); }}
-              className="w-full mt-3 text-gray-500 hover:text-gray-300 text-sm transition-colors"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
-    </div>  {/* ← 기존 마지막 div */}
-  );
-}
     </div>
   );
 }
