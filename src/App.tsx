@@ -10,7 +10,7 @@ type Page =
 
 export default function App() {
   const [page, setPage] = useState<Page>({ type: 'list' });
-  const [masterMode, setMasterMode] = useState(false); // ★ 추가
+  const [masterMode, setMasterMode] = useState(false); // ★ 마스터 상태
 
   if (page.type === 'create') {
     return (
@@ -26,8 +26,8 @@ export default function App() {
       <CharacterSheet
         characterId={page.id}
         onBack={() => setPage({ type: 'list' })}
-        masterMode={masterMode}           // ★ 추가
-        setMasterMode={setMasterMode}     // ★ 추가
+        masterMode={masterMode}
+        setMasterMode={setMasterMode}
       />
     );
   }
@@ -36,6 +36,8 @@ export default function App() {
     <CharacterList
       onSelect={(id) => setPage({ type: 'sheet', id })}
       onCreate={() => setPage({ type: 'create' })}
+      masterMode={masterMode}         // ★ 전달
+      setMasterMode={setMasterMode}   // ★ 전달
     />
   );
 }
