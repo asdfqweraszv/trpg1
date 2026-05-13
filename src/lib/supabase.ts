@@ -4,6 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 // 프로필 이미지 업로드 함수
 export async function uploadAvatar(characterId: string, file: File): Promise<string | null> {
   const fileExt = file.name.split('.').pop();
