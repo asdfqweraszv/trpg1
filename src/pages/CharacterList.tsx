@@ -8,6 +8,8 @@ import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, S
 interface Props {
   onSelect: (id: string) => void;
   onCreate: () => void;
+  masterMode: boolean;
+  setMasterMode: (mode: boolean) => void;
 }
 
 export default function CharacterList({ onSelect, onCreate, masterMode, setMasterMode }: Props) {
