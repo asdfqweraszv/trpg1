@@ -289,7 +289,7 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
 
             <div>
               <label className="block text-sm text-gray-400 mb-3">직업 선택</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-3">
     {JOB_LIST.map((j) => {
       const jobData = JOB_BONUSES[j];
       const isSelected = job === j;
