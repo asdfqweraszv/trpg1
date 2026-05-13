@@ -247,37 +247,42 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
               <label className="block text-sm text-gray-400 mb-3">종족 선택</label>
               <div className="grid grid-cols-2 gap-2">
                 {speciesList.map((s) => {
-                  const bonus = SPECIES_BONUSES[s];
-                  return (
-                    <div key={s} className="relative">
-                      <button
-                        onClick={() => setSpecies(s)}
-                        className={`w-full text-left p-3 rounded-lg border transition-all ${
-                          species === s
-                            ? 'border-blue-500 bg-blue-950/30 text-white'
-                            : 'border-gray-800 bg-gray-900 text-gray-300 hover:border-gray-600'
-                        }`}
-                      >
-                        <div className="font-medium text-sm">{bonus.label}</div>
-                        <div className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                          {bonus.description.length > 40 ? bonus.description.slice(0, 40) + '...' : bonus.description}
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => setShowSpeciesInfo(showSpeciesInfo === s ? null : s)}
-                        className="absolute top-2 right-2 text-gray-600 hover:text-gray-400"
-                      >
-                        {showSpeciesInfo === s ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </button>
-                      {showSpeciesInfo === s && (
-                        <div className="mt-1 p-3 bg-gray-800 rounded-lg border border-gray-700 text-xs text-gray-300 space-y-1">
-                          <p>{bonus.description}</p>
-                          {bonus.specialNote && <p className="text-amber-400">{bonus.specialNote}</p>}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+  const bonus = SPECIES_BONUSES[s];
+  const isSelected = species === s;
+  const isInfoShown = showSpeciesInfo === s;
+  
+  return (
+    <div key={s} className="relative">
+      <button
+        onClick={() => {
+          setSpecies(s); 
+          setShowSpeciesInfo(isSelected ? (isInfoShown ? null : s) : s);
+        }}
+        className={`w-full text-left p-3 rounded-lg border transition-all ${
+          isSelected
+            ? 'border-blue-500 bg-blue-950/30 text-white'
+            : 'border-gray-800 bg-gray-900 text-gray-300 hover:border-gray-600'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-sm">{bonus.label}</div>
+          <div className="text-gray-500">
+            {isInfoShown ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </div>
+        </div>
+        <div className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          {bonus.description.length > 40 ? bonus.description.slice(0, 40) + '...' : bonus.description}
+        </div>
+      </button>
+      {isInfoShown && (
+        <div className="mt-1 p-3 bg-gray-800 rounded-lg border border-gray-700 text-xs text-gray-300 space-y-1">
+          <p>{bonus.description}</p>
+          {bonus.specialNote && <p className="text-amber-400">{bonus.specialNote}</p>}
+        </div>
+      )}
+    </div>
+  );
+})}
               </div>
             </div>
 
