@@ -12,6 +12,9 @@ type Page =
 export default function App() {
   const [page, setPage] = useState<Page>({ type: 'list' });
   const [masterMode, setMasterMode] = useState(false);
+    useEffect(() => {
+    createAvatarsBucket();
+  }, []);
 
   if (page.type === 'create') {
     return (
