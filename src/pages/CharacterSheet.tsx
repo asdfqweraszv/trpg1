@@ -196,7 +196,7 @@ const visibleStats = ALL_STATS;
         rarity: '일반',
         bonus_hp: 0, bonus_attack: 0, bonus_spell: 0, bonus_mana: 0,
         bonus_intelligence: 0, bonus_agility: 0, bonus_defense: 0,
-        bonus_magic_resist: 0, bonus_charm: 0,
+        bonus_magic_resist: 0, bonus_charm: 0, enhance_level: 0,
       };
       const { data } = await supabase.from('equipment').insert(newEq).select().single();
       if (data) setEquipment(prev => [...prev, data as Equipment]);
