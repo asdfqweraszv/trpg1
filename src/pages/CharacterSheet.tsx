@@ -72,7 +72,6 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [unlocked, setUnlocked] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [masterMode, setMasterMode] = useState(false);
   const [masterInput, setMasterInput] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [tab, setTab] = useState<Tab>('stats');
