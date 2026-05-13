@@ -307,6 +307,19 @@ const visibleStats = ALL_STATS;
     {getSpeciesPassiveDescription(char, equipment)}
   </div>
 )}
+{char.species === 'undead' && (
+  <div className="flex items-center gap-2 mt-1">
+    <input
+      type="checkbox"
+      checked={undeadReviveUsed}
+      onChange={(e) => setUndeadReviveUsed(e.target.checked)}
+      className="w-3 h-3"
+    />
+    <span className="text-xs text-gray-400">
+      {undeadReviveUsed ? '불사의 의지 사용 완료' : '불사의 의지 사용 가능'}
+    </span>
+  </div>
+)}
               </div>
             </div>
             <div className="text-right">
