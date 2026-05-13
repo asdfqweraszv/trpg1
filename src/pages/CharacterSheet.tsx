@@ -301,9 +301,11 @@ const visibleStats = ALL_STATS;
                 <div className="text-sm text-gray-400 mt-0.5">
                   {SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]} · {char.job}
                 </div>
-                {SPECIES_BONUSES[char.species as keyof typeof SPECIES_BONUSES]?.specialNote && (
-                  <div className="text-xs text-amber-400/80 mt-1">{SPECIES_BONUSES[char.species as keyof typeof SPECIES_BONUSES].specialNote}</div>
-                )}
+                {char && (
+  <div className="text-xs text-amber-400/80 mt-1">
+    {getSpeciesPassiveDescription(char, equipment)}
+  </div>
+)}
               </div>
             </div>
             <div className="text-right">
