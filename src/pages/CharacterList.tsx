@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { Character, SPECIES_LABELS, JOB_LIST } from '../types/character';
+import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight } from 'lucide-react';
+
+interface Props {
+  onSelect: (id: string) => void;
+  onCreate: () => void;
+}
+
+export default function CharacterList({ onSelect, onCreate }: Props) {
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('characters')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setCharacters(data as Character[]);
+        setLoading(false);
+      });
+  }, []);
+
+  const jobColors: Record<string, string> = {
+    '광전사': 'text-red-400 bg-red-950/40 border-red-800/50',
+    '몽크': 'text-amber-400 bg-amber-950/40 border-amber-800/50',
+    '탱커': 'text-blue-400 bg-blue-950/40 border-blue-800/50',
+    '바드': 'text-pink-400 bg-pink-950/40 border-pink-800/50',
+    '마법사': 'text-cyan-400 bg-cyan-950/40 border-cyan-800/50',
+    '궁수': 'text-green-400 bg-green-950/40 border-green-800/50',
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">TRPG 캐릭터</h1>
+            <p className="text-gray-400 mt-1 text-sm">캐릭터를 선택하거나 새로 만드세요</p>
+          </div>
+          <button
+            onClick={onCreate}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm"
+          >
+            <Plus size={16} />
+            새 캐릭터
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : characters.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            <User size={48} className="mx-auto mb-4 opacity-30" />
+            <p className="text-lg">캐릭터가 없습니다</p>
+            <p className="text-sm mt-1">새 캐릭터를 만들어보세요</p>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            {characters.map((char) => (
+              <button
+                key={char.id}
+                onClick={() => onSelect(char.id!)}
+                className="w-full text-left bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-xl p-5 transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xl font-bold text-gray-300">
+                      {char.name[0]}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white text-lg">{char.name}</span>
+                        <span className="text-xs text-gray-500">Lv.{char.level}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-400">{SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]}</span>
+                        <span className="text-gray-600">·</span>
+                        <span className={`text-xs px-2 py-0.5 rounded border font-medium ${jobColors[char.job] ?? 'text-gray-400 bg-gray-800 border-gray-700'}`}>
+                          {char.job}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-1.5 text-red-400">
+                      <Heart size={14} />
+                      <span>{char.current_hp}/{char.stat_hp + char.spent_hp}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-blue-400">
+                      <Zap size={14} />
+                      <span>{char.current_mana}/{char.stat_mana + char.spent_mana}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-orange-400">
+                      <Swords size={14} />
+                      <span>{char.stat_attack + char.spent_attack}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sky-400">
+                      <Shield size={14} />
+                      <span>{char.stat_defense}</span>
+                    </div>
+                    <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
