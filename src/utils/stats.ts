@@ -145,6 +145,31 @@ export function getMachineOverloadDescription(): string {
   return '과부화: 전투 당 한번, 현재 사용 가능한 스킬을 코스트 소모 없이 사용 가능합니다. 다음 1턴간 기절상태가 됩니다.';
 }
 
+// ★ 인간: 추가 스탯 +5 (이미 생성 시 적용되므로 설명만)
+export function getHumanBonusDescription(): string {
+  return '우월함: 시작 시 원하는 스탯에 +5 추가 (20 초과 가능)';
+}
+
+// ★ 익인: 대성공 필요 주사위 1 감소
+export function getBirdmanCritReduction(): number {
+  return 1; // 대성공 필요 주사위 값 1 감소 (20→19)
+}
+
+// ★ 슬라임: 레벨업 추가 스탯
+export function getSlimeLevelUpBonus(): number {
+  return 1; // 레벨업 시 추가 스탯 +1
+}
+
+// ★ 흡혈귀: 흡혈률
+export function getVampireLifestealPercent(): number {
+  return 10; // 가한 피해의 10% 흡혈
+}
+
+// ★ 노움: 행운 - 실패 시 재굴림 가능 여부 (On/Off)
+export function canGnomeReroll(char: Character): boolean {
+  return char.species === 'gnome';
+}
+
 // ★ 패시브 효과 설명 통합 (UI 표시용)
 export function getSpeciesPassiveDescription(char: Character, equipment: Equipment[]): string {
   switch (char.species) {
