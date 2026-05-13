@@ -160,6 +160,7 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
       ALL_STATS.forEach((s) => {
         statsToSave[s] = finalStats[s] ?? 0;
       });
+        statsToSave = applyJobBonus(statsToSave, job);
 
       if (species === 'vampire') {
         const max = Math.max(statsToSave['hp'], statsToSave['attack'], statsToSave['spell']);
@@ -205,24 +206,6 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
       setLoading(false);
     }
   }
-
-  async function handleCreate() {
-  setLoading(true);
-  setError('');
-  try {
-    let statsToSave: Record<string, number> = {};
-    ALL_STATS.forEach((s) => {
-      statsToSave[s] = finalStats[s] ?? 0;
-    });
-
-    statsToSave = applyJobBonus(statsToSave, job);
-
-    if (species === 'vampire') {
-      const max = Math.max(statsToSave['hp'] ?? 0, statsToSave['attack'] ?? 0, statsToSave['spell'] ?? 0);
-      statsToSave['hp'] = max;
-      statsToSave['attack'] = max;
-      statsToSave['spell'] = max;
-    }
 
   const visibleStats = ALL_STATS;
   const slimeSpendableStats = ALL_STATS.filter(s => !FIXED_BASE_STATS.includes(s));
