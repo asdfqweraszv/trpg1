@@ -203,7 +203,7 @@ export interface Equipment {
   bonus_defense: number;
   bonus_magic_resist: number;
   bonus_charm: number;
-  enhance_level: number;
+  enhance_level?: number;
 }
 
 export interface Character {
