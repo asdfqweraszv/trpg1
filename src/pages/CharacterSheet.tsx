@@ -410,7 +410,6 @@ const visibleStats = ALL_STATS;
               const base = getTotalStat(char, s, equipment);
               const hasEquipBonus = effective !== base || equipment.some(e => (e[`bonus_${s}` as keyof Equipment] as number) !== 0);
               const jobBonusValue = (JOB_BONUSES[char.job as Job]?.statModifiers[s as keyof Stats] ?? 0) as number;
-          }
 
               return (
                 <div key={s} className={`rounded-xl border p-3 ${STAT_BG[s]}`}>
