@@ -8,7 +8,7 @@ interface Props {
   onCreate: () => void;
 }
 
-export default function CharacterList({ onSelect, onCreate }: Props) {
+export default function CharacterList({ onSelect, onCreate, masterMode, setMasterMode }: Props) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
 
