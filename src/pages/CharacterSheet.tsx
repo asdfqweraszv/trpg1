@@ -11,6 +11,8 @@ import {
 interface Props {
   characterId: string;
   onBack: () => void;
+  masterMode: boolean;
+  setMasterMode: (mode: boolean) => void;
 }
 
 const STAT_ICONS: Record<string, React.ReactNode> = {
