@@ -145,44 +145,39 @@ export function getMachineOverloadDescription(): string {
   return '과부화: 전투 당 한번, 현재 사용 가능한 스킬을 코스트 소모 없이 사용 가능합니다. 다음 1턴간 기절상태가 됩니다.';
 }
 
-// ★ 인간: 추가 스탯 +5 (이미 생성 시 적용되므로 설명만)
-export function getHumanBonusDescription(): string {
-  return '우월함: 시작 시 원하는 스탯에 +5 추가 (20 초과 가능)';
-}
-
-// ★ 익인: 대성공 필요 주사위 1 감소
-export function getBirdmanCritReduction(): number {
-  return 1; // 대성공 필요 주사위 값 1 감소 (20→19)
-}
-
-// ★ 슬라임: 레벨업 추가 스탯
-export function getSlimeLevelUpBonus(): number {
-  return 1; // 레벨업 시 추가 스탯 +1
-}
-
-// ★ 흡혈귀: 흡혈률
-export function getVampireLifestealPercent(): number {
-  return 10; // 가한 피해의 10% 흡혈
-}
-
-// ★ 노움: 행운 - 실패 시 재굴림 가능 여부 (On/Off)
-export function canGnomeReroll(char: Character): boolean {
-  return char.species === 'gnome';
-}
-
 // ★ 패시브 효과 설명 통합 (UI 표시용)
 export function getSpeciesPassiveDescription(char: Character, equipment: Equipment[]): string {
   switch (char.species) {
+    case 'human':
+      return '우월함: 시작 시 원하는 스탯에 +5 추가 (20 초과 가능)';
     case 'orc':
       return `재생: 매 턴 체력을 ${getHpRegen(char, equipment)} 회복합니다.`;
     case 'elf':
       return `마나의 흐름: 매 턴 마나를 ${getManaRegen(char, equipment)} 회복합니다.`;
     case 'lizardman':
       return `견고함: 받는 피해가 ${getDamageReduction(char, equipment)} 감소합니다.`;
+    case 'birdman':
+      return '맹금의 눈: 대성공 필요 주사위 값이 1 감소합니다. (20→19)';
+    case 'slime':
+      return '고속성장: 레벨업 시 스탯 포인트를 4 얻습니다. (일반 3)';
+    case 'vampire':
+      return '흡혈: 가한 피해의 10%를 흡혈합니다.';
+    case 'gnome':
+      return '행운아: 실패(1 포함) 시 한 번 더 기회가 주어집니다.';
     case 'undead':
       return `불사의 의지: 사망 시 최대 체력의 20%(${getUndeadReviveHp(char, equipment)})로 부활합니다.`;
-    case 'machine':  // ★ 추가
-      return getMachineOverloadDescription();
+    case 'dwarf':
+      return '완고한 장인: 장비를 강화할 수 있습니다. (준비 중)';
+    case 'beastkin': {
+      const maxHp = getEffectiveStat(char, 'hp', equipment);
+      const enraged = isBeastkinEnraged(char.current_hp, maxHp);
+      if (enraged) {
+        return '야성 발동 중! 민첩+3, 공격력+3, 모든 대상에게 공포.';
+      }
+      return `야성: 체력 50% 이하 시 민첩+3, 공격력+3, 모든 대상에게 공포. (현재 ${char.current_hp}/${maxHp})`;
+    }
+    case 'machine':
+      return '과부화: 전투 당 한번, 코스트 소모 없이 스킬 사용 가능. 다음 1턴간 기절.';
     default:
       return '';
   }
