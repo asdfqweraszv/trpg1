@@ -4,7 +4,6 @@ import { Character, SPECIES_LABELS, JOB_LIST } from '../types/character';
 import { verifyPassword } from '../utils/stats';
 import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, Star } from 'lucide-react';
 
-
 interface Props {
   onSelect: (id: string) => void;
   onCreate: () => void;
@@ -15,6 +14,9 @@ interface Props {
 export default function CharacterList({ onSelect, onCreate, masterMode, setMasterMode }: Props) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showMasterLogin, setShowMasterLogin] = useState(false); // ← 추가
+  const [masterPassword, setMasterPassword] = useState('');       // ← 추가
+  const [masterError, setMasterError] = useState('');             // ← 추가
 
   useEffect(() => {
     supabase
@@ -26,6 +28,24 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         setLoading(false);
       });
   }, []);
+
+  // ★ 추가
+  async function tryMasterLogin() {
+    const { data } = await supabase
+      .from('master_settings')
+      .select('master_password_hash')
+      .eq('id', 1)
+      .maybeSingle();
+      
+    if (data && verifyPassword(masterPassword, data.master_password_hash)) {
+      setMasterMode(true);
+      setShowMasterLogin(false);
+      setMasterPassword('');
+      setMasterError('');
+    } else {
+      setMasterError('비밀번호가 틀렸습니다');
+    }
+  }
 
   const jobColors: Record<string, string> = {
     '광전사': 'text-red-400 bg-red-950/40 border-red-800/50',
