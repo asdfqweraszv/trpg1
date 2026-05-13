@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Character, SPECIES_LABELS, JOB_LIST } from '../types/character';
 import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight } from 'lucide-react';
 import { supabase, uploadAvatar } from '../lib/supabase';
-import { Camera } from 'lucide-react'; // 카메라 아이콘
+import { Camera } from 'lucide-react'; 
 
 interface Props {
   onSelect: (id: string) => void;
