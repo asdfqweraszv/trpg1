@@ -273,18 +273,6 @@ const visibleStats = ALL_STATS;
             <button onClick={tryUnlock} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium mb-3 transition-colors">
               잠금 해제
             </button>
-            <div className="border-t border-gray-700 pt-3">
-              <input
-                type="password"
-                value={masterInput}
-                onChange={e => { setMasterInput(e.target.value); setPasswordError(''); }}
-                placeholder="마스터 비밀번호"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-2"
-                onKeyDown={e => e.key === 'Enter' && tryMaster()}
-              />
-              <button onClick={tryMaster} className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-medium transition-colors">
-                마스터로 잠금 해제
-              </button>
             </div>
             {passwordError && <p className="text-red-400 text-sm mt-2">{passwordError}</p>}
             <button onClick={() => setShowPasswordModal(false)} className="w-full mt-3 text-gray-500 hover:text-gray-300 text-sm transition-colors">
