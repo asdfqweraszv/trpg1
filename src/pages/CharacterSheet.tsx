@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job  } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel } from '../utils/stats';
-import { rollD20 } from '../utils/stats';
+import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity } from '../types/character';
+import { getTotalStat, getEffectiveStat, verifyPassword } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
   Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target
@@ -11,8 +10,6 @@ import {
 interface Props {
   characterId: string;
   onBack: () => void;
-  masterMode: boolean;      // ★ 추가
-  setMasterMode: (mode: boolean) => void; // ★ 추가
 }
 
 const STAT_ICONS: Record<string, React.ReactNode> = {
@@ -65,21 +62,20 @@ const RARITY_LIST: ItemRarity[] = ['저급', '일반', '고급', '희귀', '전�
 
 type Tab = 'stats' | 'equipment' | 'notes';
 
-export default function CharacterSheet({ characterId, onBack, masterMode, setMasterMode }: Props) {
+export default function CharacterSheet({ characterId, onBack }: Props) {
   const [char, setChar] = useState<Character | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [masterMode, setMasterMode] = useState(false);
+  const [masterInput, setMasterInput] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [tab, setTab] = useState<Tab>('stats');
   const [saving, setSaving] = useState(false);
   const [hpInput, setHpInput] = useState('');
   const [manaInput, setManaInput] = useState('');
-  const [undeadReviveUsed, setUndeadReviveUsed] = useState(false);
-  const [machineOverloadUsed, setMachineOverloadUsed] = useState(false);
-  const [enhanceMessage, setEnhanceMessage] = useState('');
 
   const loadChar = useCallback(async () => {
     const { data: charData } = await supabase.from('characters').select('*').eq('id', characterId).maybeSingle();
@@ -96,12 +92,6 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   useEffect(() => {
     loadChar();
   }, [loadChar]);
-
-    useEffect(() => {
-    if (masterMode) {
-      setUnlocked(true);
-    }
-  }, [masterMode]);
 
   const maxHp = char ? getEffectiveStat(char, 'hp', equipment) : 0;
   const maxMana = char ? getEffectiveStat(char, 'mana', equipment) : 0;
@@ -136,6 +126,34 @@ const visibleStats = ALL_STATS;
     } else {
       setPasswordError('비밀번호가 틀렸습니다');
     }
+  }
+
+  async function tryMaster() {
+    const { data } = await supabase.from('master_settings').select('master_password_hash').eq('id', 1).maybeSingle();
+    if (data && verifyPassword(masterInput, data.master_password_hash)) {
+      setMasterMode(true);
+      setUnlocked(true);
+      setShowPasswordModal(false);
+      setPasswordError('');
+    } else {
+      setPasswordError('마스터 비밀번호가 틀렸습니다');
+    }
+  }
+
+  function adjustStat(statKey: string, delta: number) {
+    if (!char || !unlocked) return;
+    if (FIXED_BASE_STATS.includes(statKey) && !masterMode) return;
+    const spentKey = `spent_${statKey}` as keyof Character;
+    const currentSpent = (char[spentKey] as number) ?? 0;
+    if (delta > 0 && statPoints <= 0 && !masterMode) return;
+    if (delta < 0 && currentSpent <= 0 && !masterMode) return;
+    const newSpent = currentSpent + delta;
+    if (newSpent < 0 && !masterMode) return;
+    const updates: Partial<Character> = { [spentKey]: Math.max(0, newSpent) };
+    if (!masterMode) {
+      updates.stat_points = statPoints - delta;
+    }
+    saveChar(updates);
   }
 
   function adjustBaseStat(statKey: string, delta: number) {
@@ -186,39 +204,6 @@ const visibleStats = ALL_STATS;
     setEquipment(prev => prev.filter(e => e.id !== id));
   }
 
-  async function enhanceEquipment(eq: Equipment) {
-    
-    if (!char || char.species !== 'dwarf') return;
-    
-    const currentLevel = eq.enhance_level ?? 0;
-    const maxLevel = getMaxEnhanceLevel();
-    
-    if (currentLevel >= maxLevel) {
-      setEnhanceMessage('이미 최대 강화 단계입니다!');
-      return;
-    }
-    
-    const difficulty = getEnhanceDifficulty(currentLevel);
-    const roll = rollD20();
-    
-    if (roll >= difficulty) {
-      const newLevel = currentLevel + 1;
-      await updateEquipmentField(eq.id!, 'enhance_level', newLevel);
-      setEnhanceMessage(`강화 성공! (주사위: ${roll} / 필요: ${difficulty}) → +${newLevel}강`);
-    } else {
-      if (currentLevel <= 0) {
-        await removeEquipment(eq.id!);
-        setEnhanceMessage(`강화 실패... 장비가 파괴되었습니다. (주사위: ${roll} / 필요: ${difficulty})`);
-      } else {
-        const newLevel = currentLevel - 1;
-        await updateEquipmentField(eq.id!, 'enhance_level', newLevel);
-        setEnhanceMessage(`강화 실패! ${currentLevel}강 → ${newLevel}강으로 하락. (주사위: ${roll} / 필요: ${difficulty})`);
-      }
-    }
-    
-    setTimeout(() => setEnhanceMessage(''), 3000);
-  }
-
   async function updateEquipmentField(id: string, field: string, value: string | number) {
     setEquipment(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
@@ -261,6 +246,19 @@ const visibleStats = ALL_STATS;
             <button onClick={tryUnlock} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium mb-3 transition-colors">
               잠금 해제
             </button>
+            <div className="border-t border-gray-700 pt-3">
+              <input
+                type="password"
+                value={masterInput}
+                onChange={e => { setMasterInput(e.target.value); setPasswordError(''); }}
+                placeholder="마스터 비밀번호"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-2"
+                onKeyDown={e => e.key === 'Enter' && tryMaster()}
+              />
+              <button onClick={tryMaster} className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-medium transition-colors">
+                마스터로 잠금 해제
+              </button>
+            </div>
             {passwordError && <p className="text-red-400 text-sm mt-2">{passwordError}</p>}
             <button onClick={() => setShowPasswordModal(false)} className="w-full mt-3 text-gray-500 hover:text-gray-300 text-sm transition-colors">
               취소
@@ -278,15 +276,7 @@ const visibleStats = ALL_STATS;
             {saving && <span className="text-xs text-gray-500 animate-pulse">저장 중...</span>}
             {masterMode && <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">마스터</span>}
             <button
-              onClick={() => {
-  if (unlocked) {
-    setUnlocked(false);
-  } else if (masterMode) {
-    setUnlocked(true);
-  } else {
-    setShowPasswordModal(true);
-  }
-}}
+              onClick={() => unlocked ? (setUnlocked(false), setMasterMode(false)) : setShowPasswordModal(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
                 unlocked
                   ? 'border-green-700 bg-green-950/30 text-green-400 hover:bg-green-950/50'
@@ -311,40 +301,8 @@ const visibleStats = ALL_STATS;
                 <div className="text-sm text-gray-400 mt-0.5">
                   {SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]} · {char.job}
                 </div>
-{char && (
-                  <div className="text-xs text-amber-400/80 mt-1">
-                    {getSpeciesPassiveDescription(char, equipment)}
-                  </div>
-                )}
-                {char && (char.species === 'undead' || char.species === 'machine') && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        if (char.species === 'undead') setUndeadReviveUsed(!undeadReviveUsed);
-                        if (char.species === 'machine') setMachineOverloadUsed(!machineOverloadUsed);
-                      }}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                        (char.species === 'undead' && undeadReviveUsed) || (char.species === 'machine' && machineOverloadUsed)
-                          ? 'bg-red-600'
-                          : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-                          (char.species === 'undead' && undeadReviveUsed) || (char.species === 'machine' && machineOverloadUsed)
-                            ? 'translate-x-4'
-                            : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                    <span className="text-xs text-gray-400">
-                      {char.species === 'undead'
-                        ? (undeadReviveUsed ? '불사의 의지 사용 완료' : '불사의 의지 사용 가능')
-                        : char.species === 'machine'
-                        ? (machineOverloadUsed ? '과부화 사용 완료' : '과부화 사용 가능')
-                        : ''}
-                    </span>
-                  </div>
+                {SPECIES_BONUSES[char.species as keyof typeof SPECIES_BONUSES]?.specialNote && (
+                  <div className="text-xs text-amber-400/80 mt-1">{SPECIES_BONUSES[char.species as keyof typeof SPECIES_BONUSES].specialNote}</div>
                 )}
               </div>
             </div>
@@ -451,7 +409,6 @@ const visibleStats = ALL_STATS;
               const effective = getEffectiveStat(char, s, equipment);
               const base = getTotalStat(char, s, equipment);
               const hasEquipBonus = effective !== base || equipment.some(e => (e[`bonus_${s}` as keyof Equipment] as number) !== 0);
-              const jobBonusValue = (JOB_BONUSES[char.job as Job]?.statModifiers[s as keyof Stats] ?? 0) as number;
 
               return (
                 <div key={s} className={`rounded-xl border p-3 ${STAT_BG[s]}`}>
@@ -528,7 +485,7 @@ const visibleStats = ALL_STATS;
           </div>
         )}
 
-                {tab === 'equipment' && (
+        {tab === 'equipment' && (
           <div className="space-y-3">
             {EQUIPMENT_SLOTS.map(slot => {
               const eq = equipment.find(e => e.slot_name === slot);
@@ -580,43 +537,10 @@ const visibleStats = ALL_STATS;
                           </span>
                         )}
                       </div>
-
-                      {/* 드워프 강화 버튼 */}
-                      {char.species === 'dwarf' && unlocked && eq.item_name && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
-                            강화: +{eq.enhance_level ?? 0}강
-                            {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                              <span className="text-gray-600 ml-1">
-                                (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
-                              </span>
-                            )}
-                          </span>
-                          {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                            <button
-                              onClick={() => enhanceEquipment(eq)}
-                              className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
-                            >
-                              강화
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 강화 결과 메시지 */}
-                      {enhanceMessage && (
-                        <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
-                          {enhanceMessage}
-                        </div>
-                      )}
-
-                      {/* 스탯 보너스 목록 */}
                       <div className="grid grid-cols-2 gap-2">
                         {ALL_STATS.map(s => {
                           const bonusKey = `bonus_${s}` as keyof Equipment;
                           const val = (eq[bonusKey] as number) ?? 0;
-                          const enhanceBonus = (eq.enhance_level ?? 0);
-                          const totalBonus = val + enhanceBonus;
                           return (
                             <div key={s} className="flex items-center gap-2">
                               <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
@@ -628,8 +552,8 @@ const visibleStats = ALL_STATS;
                                   className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
                                 />
                               ) : (
-                                <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-                                  {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
+                                <span className={`text-xs font-medium ${val > 0 ? 'text-amber-400' : val < 0 ? 'text-red-400' : 'text-gray-600'}`}>
+                                  {val > 0 ? `+${val}` : val}
                                 </span>
                               )}
                             </div>
@@ -655,7 +579,7 @@ const visibleStats = ALL_STATS;
                 onChange={e => setChar(prev => prev ? { ...prev, special_abilities: e.target.value } : prev)}
                 onBlur={e => saveChar({ special_abilities: e.target.value })}
                 disabled={!unlocked}
-                placeholder="성격"
+                placeholder="특수 능력이나 패시브 스킬을 입력하세요..."
                 rows={4}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
               />
