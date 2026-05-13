@@ -2,6 +2,7 @@ import { useState } from 'react';
 import CharacterList from './pages/CharacterList';
 import CreateCharacter from './pages/CreateCharacter';
 import CharacterSheet from './pages/CharacterSheet';
+import { createAvatarsBucket } from './lib/supabase';
 
 type Page =
   | { type: 'list' }
