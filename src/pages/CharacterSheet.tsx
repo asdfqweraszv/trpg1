@@ -207,6 +207,37 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').delete().eq('id', id);
     setEquipment(prev => prev.filter(e => e.id !== id));
   }
+   async function enhanceEquipment(eq: Equipment) {
+    if (!char || char.species !== 'dwarf') return;
+    
+    const currentLevel = eq.enhance_level ?? 0;
+    const maxLevel = getMaxEnhanceLevel();
+    
+    if (currentLevel >= maxLevel) {
+      setEnhanceMessage('이미 최대 강화 단계입니다!');
+      return;
+    }
+    
+    const difficulty = getEnhanceDifficulty(currentLevel);
+    const roll = rollD20();
+    
+    if (roll >= difficulty) {
+      const newLevel = currentLevel + 1;
+      await updateEquipmentField(eq.id!, 'enhance_level', newLevel);
+      setEnhanceMessage(`강화 성공! (주사위: ${roll} / 필요: ${difficulty}) → +${newLevel}강`);
+    } else {
+      if (currentLevel <= 0) {
+        await removeEquipment(eq.id!);
+        setEnhanceMessage(`강화 실패... 장비가 파괴되었습니다. (주사위: ${roll} / 필요: ${difficulty})`);
+      } else {
+        const newLevel = currentLevel - 1;
+        await updateEquipmentField(eq.id!, 'enhance_level', newLevel);
+        setEnhanceMessage(`강화 실패! ${currentLevel}강 → ${newLevel}강으로 하락. (주사위: ${roll} / 필요: ${difficulty})`);
+      }
+    }
+    
+    setTimeout(() => setEnhanceMessage(''), 3000);
+  }
 
   async function updateEquipmentField(id: string, field: string, value: string | number) {
     setEquipment(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
@@ -574,29 +605,47 @@ const visibleStats = ALL_STATS;
                           </span>
                         )}
                       </div>
+                       {char.species === 'dwarf' && unlocked && eq.item_name && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-xs text-gray-500">
+                            강화: +{eq.enhance_level ?? 0}강
+                            {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                              <span className="text-gray-600 ml-1">
+                                (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
+                              </span>
+                            )}
+                          </span>
+                          {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                            <button
+                              onClick={() => enhanceEquipment(eq)}
+                              className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
+                            >
+                              강화
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {enhanceMessage && (
+                        <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
+                          {enhanceMessage}
+                        </div>
+                      )}
                       <div className="grid grid-cols-2 gap-2">
                         {ALL_STATS.map(s => {
-                          const bonusKey = `bonus_${s}` as keyof Equipment;
-                          const val = (eq[bonusKey] as number) ?? 0;
-                          return (
-                            <div key={s} className="flex items-center gap-2">
-                              <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
-                              {masterMode ? (
-                                <input
-                                  type="number"
-                                  value={val}
-                                  onChange={e => updateEquipmentField(eq.id!, bonusKey, Number(e.target.value))}
-                                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
-                                />
-                              ) : (
-                                <span className={`text-xs font-medium ${val > 0 ? 'text-amber-400' : val < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-                                  {val > 0 ? `+${val}` : val}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+  const bonusKey = `bonus_${s}` as keyof Equipment;
+  const val = (eq[bonusKey] as number) ?? 0;
+  const enhanceBonus = (eq.enhance_level ?? 0); // ★ 강화 수치 추가
+  const totalBonus = val + enhanceBonus;
+  return (
+    <div key={s} className="flex items-center gap-2">
+      <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
+      <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
+        {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
+      </span>
+    </div>
+  );
+})}
                     </div>
                   ) : (
                     <div className="text-xs text-gray-600 italic">장비 없음</div>
@@ -616,7 +665,7 @@ const visibleStats = ALL_STATS;
                 onChange={e => setChar(prev => prev ? { ...prev, special_abilities: e.target.value } : prev)}
                 onBlur={e => saveChar({ special_abilities: e.target.value })}
                 disabled={!unlocked}
-                placeholder="특수 능력이나 패시브 스킬을 입력하세요..."
+                placeholder="성격"
                 rows={4}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
               />
