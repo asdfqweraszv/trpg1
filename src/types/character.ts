@@ -177,7 +177,6 @@ export const SPECIES_BONUSES: Record<Species, SpeciesBonus> = {
     label: '익인',
     description: '방어력/마법저항력 -2, 민첩 +5',
     statModifiers: { defense: -2, magic_resist: -2, agility: 5 },
-    specialNote: '대성공(1d20=20) 필요 주사위 값이 1 감소',
     specialNote: '맹금의 눈: 대성공에 필요한 주사위 값이 1 줄어든다.',
   },
   slime: {
