@@ -1,4 +1,4 @@
-import { Character, Equipment, Species, SPECIES_BONUSES, FIXED_BASE_STATS } from '../types/character';
+import { Character, Equipment, Species, SPECIES_BONUSES, FIXED_BASE_STATS, JOB_BONUSES, Job } from '../types/character';
 
 export function rollD20(): number {
   return Math.floor(Math.random() * 20) + 1;
@@ -34,6 +34,17 @@ export function getMaxMana(char: Character, equipment: Equipment[]): number {
 
 export function applySpeciesBonus(baseStats: Record<string, number>, species: Species): Record<string, number> {
   const bonus = SPECIES_BONUSES[species];
+  const result = { ...baseStats };
+  for (const [key, val] of Object.entries(bonus.statModifiers)) {
+    result[key] = (result[key] ?? 0) + (val ?? 0);
+  }
+  return result;
+}
+
+export function applyJobBonus(baseStats: Record<string, number>, job: Job): Record<string, number> {
+  const bonus = JOB_BONUSES[job];
+  if (!bonus) return baseStats;
+  
   const result = { ...baseStats };
   for (const [key, val] of Object.entries(bonus.statModifiers)) {
     result[key] = (result[key] ?? 0) + (val ?? 0);
