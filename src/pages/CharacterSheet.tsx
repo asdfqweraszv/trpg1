@@ -245,6 +245,17 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
 
+    async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!char || !e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    const publicUrl = await uploadAvatar(char.id!, file);
+    if (publicUrl) {
+      await saveChar({ avatar_url: publicUrl });
+    }
+    setUploading(false);
+  }
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
