@@ -212,6 +212,7 @@ export interface Character {
   species: Species;
   job: Job;
   level: number;
+  exp: number;
   stat_hp: number;
   stat_attack: number;
   stat_spell: number;
