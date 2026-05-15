@@ -243,25 +243,55 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
 
-    async function addExperience(amount: number) {
-    if (!char || !unlocked) return;
-    if (amount <= 0) return;
-    
-    const result = addExp(char.exp || 0, char.level, amount, char.species);
-    
-    const updates: Partial<Character> = {
-      exp: result.newExp,
-      level: result.newLevel,
-      stat_points: (char.stat_points || 0) + result.totalStatPointsGained
-    };
-    
-    await saveChar(updates);
-    
-    const levelUps = result.newLevel - char.level;
-    if (levelUps > 0) {
-      alert(`🎉 ${levelUps}레벨 업! +${result.totalStatPointsGained} 스탯 포인트 획득!`);
+async function addExperience(amount: number) {
+  if (!char || !unlocked) return;
+  if (amount <= 0) return;
+  
+  // 1. 현재 경험치에 추가
+  let newExp = (char.exp || 0) + amount;
+  let newLevel = char.level;
+  let totalStatPointsGained = 0;
+  const statPointsPerLevel = char.species === 'slime' ? 4 : 3;
+  
+  // 2. 레벨업이 가능한지 반복 확인
+  while (true) {
+    const neededExp = getExpNeededForNextLevel(newLevel);
+    if (newExp >= neededExp && newLevel < 40) {
+      newExp -= neededExp;
+      newLevel++;
+      totalStatPointsGained += statPointsPerLevel;
+    } else {
+      break;
     }
   }
+  
+  console.log('변화:', {
+    oldLevel: char.level,
+    newLevel,
+    oldExp: char.exp,
+    newExp,
+    statPointsGained: totalStatPointsGained
+  });
+  
+  // 3. 업데이트할 내용 준비
+  const updates: Partial<Character> = {
+    exp: newExp,
+    level: newLevel,
+    stat_points: (char.stat_points || 0) + totalStatPointsGained
+  };
+  
+  // 4. DB 저장
+  await saveChar(updates);
+  
+  // 5. UI 즉시 업데이트
+  setChar(prev => prev ? { ...prev, ...updates } : prev);
+  
+  // 6. 레벨업 알림
+  const levelUps = newLevel - char.level;
+  if (levelUps > 0) {
+    alert(`🎉 ${levelUps}레벨 업! +${totalStatPointsGained} 스탯 포인트 획득!`);
+  }
+}
 
     async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (!char || !e.target.files || e.target.files.length === 0) return;
