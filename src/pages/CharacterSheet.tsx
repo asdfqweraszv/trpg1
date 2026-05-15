@@ -1,17 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase, uploadAvatar } from '../lib/supabase';
-import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job, Stats } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20 } from '../utils/stats';
+import { supabase } from '../lib/supabase';
+import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job  } from '../types/character';
+import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel } from '../utils/stats';
+import { rollD20 } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
-  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
+  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target
 } from 'lucide-react';
 
 interface Props {
   characterId: string;
   onBack: () => void;
-  masterMode: boolean;
-  setMasterMode: (mode: boolean) => void;
 }
 
 const STAT_ICONS: Record<string, React.ReactNode> = {
@@ -64,13 +63,15 @@ const RARITY_LIST: ItemRarity[] = ['저급', '일반', '고급', '희귀', '전�
 
 type Tab = 'stats' | 'equipment' | 'notes';
 
-export default function CharacterSheet({ characterId, onBack, masterMode, setMasterMode }: Props) {
+export default function CharacterSheet({ characterId, onBack }: Props) {
   const [char, setChar] = useState<Character | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [masterMode, setMasterMode] = useState(false);
+  const [masterInput, setMasterInput] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [tab, setTab] = useState<Tab>('stats');
   const [saving, setSaving] = useState(false);
@@ -79,7 +80,6 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [undeadReviveUsed, setUndeadReviveUsed] = useState(false);
   const [machineOverloadUsed, setMachineOverloadUsed] = useState(false);
   const [enhanceMessage, setEnhanceMessage] = useState('');
-  const [uploading, setUploading] = useState(false);
 
   const loadChar = useCallback(async () => {
     const { data: charData } = await supabase.from('characters').select('*').eq('id', characterId).maybeSingle();
@@ -96,12 +96,6 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   useEffect(() => {
     loadChar();
   }, [loadChar]);
-
-  useEffect(() => {
-    if (masterMode) {
-      setUnlocked(true);
-    }
-  }, [masterMode]);
 
   const maxHp = char ? getEffectiveStat(char, 'hp', equipment) : 0;
   const maxMana = char ? getEffectiveStat(char, 'mana', equipment) : 0;
@@ -135,6 +129,18 @@ const visibleStats = ALL_STATS;
       setPasswordError('');
     } else {
       setPasswordError('비밀번호가 틀렸습니다');
+    }
+  }
+
+  async function tryMaster() {
+    const { data } = await supabase.from('master_settings').select('master_password_hash').eq('id', 1).maybeSingle();
+    if (data && verifyPassword(masterInput, data.master_password_hash)) {
+      setMasterMode(true);
+      setUnlocked(true);
+      setShowPasswordModal(false);
+      setPasswordError('');
+    } else {
+      setPasswordError('마스터 비밀번호가 틀렸습니다');
     }
   }
 
@@ -240,17 +246,6 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
 
-    async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!char || !e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    setUploading(true);
-    const publicUrl = await uploadAvatar(char.id!, file);
-    if (publicUrl) {
-      await saveChar({ avatar_url: publicUrl });
-    }
-    setUploading(false);
-  }
-  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -288,6 +283,19 @@ const visibleStats = ALL_STATS;
             <button onClick={tryUnlock} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium mb-3 transition-colors">
               잠금 해제
             </button>
+            <div className="border-t border-gray-700 pt-3">
+              <input
+                type="password"
+                value={masterInput}
+                onChange={e => { setMasterInput(e.target.value); setPasswordError(''); }}
+                placeholder="마스터 비밀번호"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-amber-500 mb-2"
+                onKeyDown={e => e.key === 'Enter' && tryMaster()}
+              />
+              <button onClick={tryMaster} className="w-full bg-amber-700 hover:bg-amber-600 text-white py-2.5 rounded-lg font-medium transition-colors">
+                마스터로 잠금 해제
+              </button>
+            </div>
             {passwordError && <p className="text-red-400 text-sm mt-2">{passwordError}</p>}
             <button onClick={() => setShowPasswordModal(false)} className="w-full mt-3 text-gray-500 hover:text-gray-300 text-sm transition-colors">
               취소
@@ -304,16 +312,8 @@ const visibleStats = ALL_STATS;
           <div className="flex items-center gap-2">
             {saving && <span className="text-xs text-gray-500 animate-pulse">저장 중...</span>}
             {masterMode && <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">마스터</span>}
-                        <button
-              onClick={() => {
-                if (unlocked) {
-                  setUnlocked(false);
-                } else if (masterMode) {
-                  setUnlocked(true);
-                } else {
-                  setShowPasswordModal(true);
-                }
-              }}
+            <button
+              onClick={() => unlocked ? (setUnlocked(false), setMasterMode(false)) : setShowPasswordModal(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
                 unlocked
                   ? 'border-green-700 bg-green-950/30 text-green-400 hover:bg-green-950/50'
@@ -330,30 +330,9 @@ const visibleStats = ALL_STATS;
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-4">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl font-bold text-gray-200 overflow-hidden relative group">
-  {char.avatar_url ? (
-    <img src={char.avatar_url} alt={char.name} className="w-full h-full object-cover" />
-  ) : (
-    char.name[0]
-  )}
-  {unlocked && (
-    <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-      <Camera size={20} className="text-white" />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleAvatarUpload}
-        className="hidden"
-        disabled={uploading}
-      />
-    </label>
-  )}
-  {uploading && (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-    </div>
-  )}
-</div>
+              <div className="w-14 h-14 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl font-bold text-gray-200">
+                {char.name[0]}
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-white">{char.name}</h1>
                 <div className="text-sm text-gray-400 mt-0.5">

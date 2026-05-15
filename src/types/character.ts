@@ -203,7 +203,7 @@ export interface Equipment {
   bonus_defense: number;
   bonus_magic_resist: number;
   bonus_charm: number;
-  enhance_level?: number;
+  enhance_level: number;
 }
 
 export interface Character {
@@ -235,7 +235,6 @@ export interface Character {
   notes: string;
   password_hash: string;
   equipment?: Equipment[];
-  avatar_url?: string; 
 }
 
 export const SPECIES_LABELS: Record<Species, string> = {

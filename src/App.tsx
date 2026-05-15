@@ -1,8 +1,7 @@
+import { useState } from 'react';
 import CharacterList from './pages/CharacterList';
 import CreateCharacter from './pages/CreateCharacter';
 import CharacterSheet from './pages/CharacterSheet';
-import { createAvatarsBucket } from './lib/supabase';
-import { useState, useEffect } from 'react';
 
 type Page =
   | { type: 'list' }
@@ -11,10 +10,6 @@ type Page =
 
 export default function App() {
   const [page, setPage] = useState<Page>({ type: 'list' });
-  const [masterMode, setMasterMode] = useState(false);
-    useEffect(() => {
-    createAvatarsBucket();
-  }, []);
 
   if (page.type === 'create') {
     return (
@@ -30,8 +25,6 @@ export default function App() {
       <CharacterSheet
         characterId={page.id}
         onBack={() => setPage({ type: 'list' })}
-        masterMode={masterMode}
-        setMasterMode={setMasterMode}
       />
     );
   }
@@ -40,8 +33,6 @@ export default function App() {
     <CharacterList
       onSelect={(id) => setPage({ type: 'sheet', id })}
       onCreate={() => setPage({ type: 'create' })}
-      masterMode={masterMode}
-      setMasterMode={setMasterMode}
     />
   );
 }
