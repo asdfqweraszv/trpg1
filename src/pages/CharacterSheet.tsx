@@ -243,6 +243,26 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
 
+    async function addExperience(amount: number) {
+    if (!char || !unlocked) return;
+    if (amount <= 0) return;
+    
+    const result = addExp(char.exp || 0, char.level, amount, char.species);
+    
+    const updates: Partial<Character> = {
+      exp: result.newExp,
+      level: result.newLevel,
+      stat_points: (char.stat_points || 0) + result.totalStatPointsGained
+    };
+    
+    await saveChar(updates);
+    
+    const levelUps = result.newLevel - char.level;
+    if (levelUps > 0) {
+      alert(`🎉 ${levelUps}레벨 업! +${result.totalStatPointsGained} 스탯 포인트 획득!`);
+    }
+  }
+
     async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (!char || !e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
