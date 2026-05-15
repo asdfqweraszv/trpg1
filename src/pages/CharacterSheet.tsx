@@ -1,14 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
-import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job  } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel } from '../utils/stats';
-import { rollD20 } from '../utils/stats';
+import { supabase, uploadAvatar } from '../lib/supabase';
+import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job, Stats } from '../types/character';
+import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20 } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
-  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target
+  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
 } from 'lucide-react';
-import { supabase, uploadAvatar } from '../lib/supabase';
-import { Camera } from 'lucide-react';
 
 interface Props {
   characterId: string;
@@ -82,6 +79,7 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [undeadReviveUsed, setUndeadReviveUsed] = useState(false);
   const [machineOverloadUsed, setMachineOverloadUsed] = useState(false);
   const [enhanceMessage, setEnhanceMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const loadChar = useCallback(async () => {
     const { data: charData } = await supabase.from('characters').select('*').eq('id', characterId).maybeSingle();
@@ -242,6 +240,17 @@ const visibleStats = ALL_STATS;
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
 
+    async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!char || !e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setUploading(true);
+    const publicUrl = await uploadAvatar(char.id!, file);
+    if (publicUrl) {
+      await saveChar({ avatar_url: publicUrl });
+    }
+    setUploading(false);
+  }
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -321,9 +330,30 @@ const visibleStats = ALL_STATS;
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-4">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl font-bold text-gray-200">
-                {char.name[0]}
-              </div>
+              <div className="w-14 h-14 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl font-bold text-gray-200 overflow-hidden relative group">
+  {char.avatar_url ? (
+    <img src={char.avatar_url} alt={char.name} className="w-full h-full object-cover" />
+  ) : (
+    char.name[0]
+  )}
+  {unlocked && (
+    <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+      <Camera size={20} className="text-white" />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleAvatarUpload}
+        className="hidden"
+        disabled={uploading}
+      />
+    </label>
+  )}
+  {uploading && (
+    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    </div>
+  )}
+</div>
               <div>
                 <h1 className="text-xl font-bold text-white">{char.name}</h1>
                 <div className="text-sm text-gray-400 mt-0.5">
