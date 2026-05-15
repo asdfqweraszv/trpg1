@@ -273,6 +273,57 @@ const visibleStats = ALL_STATS;
     }
     setUploading(false);
   }
+
+    function ExpModal() {
+    const [expAmount, setExpAmount] = useState('');
+    
+    return (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+        <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-sm">
+          <h2 className="font-bold mb-4 text-lg">경험치 추가</h2>
+          <input
+            type="number"
+            value={expAmount}
+            onChange={e => setExpAmount(e.target.value)}
+            placeholder="추가할 경험치량"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 mb-4"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const amount = parseInt(expAmount);
+                if (!isNaN(amount) && amount > 0) {
+                  addExperience(amount);
+                  setShowExpModal(false);
+                  setExpAmount('');
+                }
+              }}
+              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium transition-colors"
+            >
+              추가
+            </button>
+            <button
+              onClick={() => {
+                setShowExpModal(false);
+                setExpAmount('');
+              }}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2.5 rounded-lg font-medium transition-colors"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (loading) {
+    return ( ... );
+  }
+  
+  if (!char) {
+    return ( ... );
+  }
   
   if (loading) {
     return (
