@@ -42,3 +42,9 @@ export async function createAvatarsBucket() {
     }
   }
 }
+// exp 컬럼이 없으면 추가하는 함수
+export async function ensureExpColumn() {
+  // 참고: 이건 Supabase 클라이언트로는 컬럼을 추가할 수 없어서 실패할 수 있음
+  // 대신 characters 테이블에서 exp 필드를 안전하게 읽도록 처리
+  console.log('exp 컬럼 확인 필요 - Supabase 대시보드에서 직접 추가해주세요');
+}
