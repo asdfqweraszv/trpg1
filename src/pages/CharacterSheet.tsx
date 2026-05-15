@@ -85,7 +85,7 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [showExpModal, setShowExpModal] = useState(false);
 
   const loadChar = useCallback(async () => {
-    const { data: charData } = await supabase.from('characters').select('*').eq('id', characterId).maybeSingle();
+    const { data: charData } = await supabase.from('characters').select('*, exp').eq('id', characterId).maybeSingle();
     const { data: eqData } = await supabase.from('equipment').select('*').eq('character_id', characterId);
     if (charData) {
       setChar(charData as Character);
