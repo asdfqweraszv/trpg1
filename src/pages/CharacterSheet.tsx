@@ -362,6 +362,8 @@ const visibleStats = ALL_STATS;
         </div>
       )}
 
+          {showExpModal && <ExpModal />}
+
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
