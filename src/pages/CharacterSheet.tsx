@@ -6,6 +6,7 @@ import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
   Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
 } from 'lucide-react';
+import { getExpNeededForNextLevel, getExpToNextLevel, addExp, calculateLevelUp } from '../utils/exp';
 
 interface Props {
   characterId: string;
