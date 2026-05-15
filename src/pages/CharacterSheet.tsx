@@ -466,6 +466,20 @@ const visibleStats = ALL_STATS;
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-white">Lv.{char.level}</div>
+                <div className="mt-2">
+    <div className="flex justify-between text-xs text-gray-400 mb-1">
+      <span>경험치</span>
+      <span>{char.exp || 0} / {getExpNeededForNextLevel(char.level)}</span>
+    </div>
+    <div className="w-32 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+      <div 
+        className="h-full bg-blue-500 rounded-full transition-all"
+        style={{ 
+          width: `${Math.min(100, ((char.exp || 0) / getExpNeededForNextLevel(char.level)) * 100)}%` 
+        }}
+      />
+    </div>
+  </div>
               {unlocked && (
                 <button
                   onClick={levelUp}
