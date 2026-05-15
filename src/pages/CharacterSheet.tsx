@@ -464,9 +464,11 @@ const visibleStats = ALL_STATS;
                 )}
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-white">Lv.{char.level}</div>
-                <div className="mt-2">
+<div className="text-right">
+  <div className="text-2xl font-bold text-white">Lv.{char.level}</div>
+  
+  {/* 경험치 바 */}
+  <div className="mt-2">
     <div className="flex justify-between text-xs text-gray-400 mb-1">
       <span>경험치</span>
       <span>{char.exp || 0} / {getExpNeededForNextLevel(char.level)}</span>
@@ -480,20 +482,23 @@ const visibleStats = ALL_STATS;
       />
     </div>
   </div>
-              {unlocked && (
-                <button
-                  onClick={levelUp}
-                  className="text-xs text-blue-400 hover:text-blue-300 mt-1 transition-colors"
-                >
-                  레벨업 +
-                </button>
-              )}
-              {statPoints > 0 && (
-                <div className="text-xs text-amber-400 mt-1 font-medium">
-                  스탯 포인트: {statPoints}
-                </div>
-              )}
-            </div>
+  
+  {/* ✅ 경험치 추가 버튼 (수정 모드에서만) */}
+  {unlocked && (
+    <button
+      onClick={() => setShowExpModal(true)}
+      className="text-xs text-green-400 hover:text-green-300 mt-2 transition-colors block w-full"
+    >
+      + 경험치 추가
+    </button>
+  )}
+  
+  {statPoints > 0 && (
+    <div className="text-xs text-amber-400 mt-1 font-medium">
+      스탯 포인트: {statPoints}
+    </div>
+  )}
+</div>
           </div>
 
           {/* HP Bar */}
