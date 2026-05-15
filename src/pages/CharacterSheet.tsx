@@ -88,6 +88,10 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
     const { data: charData } = await supabase.from('characters').select('*, exp').eq('id', characterId).maybeSingle();
     const { data: eqData } = await supabase.from('equipment').select('*').eq('character_id', characterId);
     if (charData) {
+          console.log('불러온 캐릭터 데이터:', { 
+      level: charData.level, 
+      exp: charData.exp  // ← exp 확인
+    });
       setChar(charData as Character);
       setHpInput(String(charData.current_hp));
       setManaInput(String(charData.current_mana));
