@@ -102,6 +102,7 @@ export function addExp(
   const statPointsPerLevel = getStatPointsPerLevel(species);
   const totalStatPointsGained = levelUpCount * statPointsPerLevel;
   const bonusStatPoints = getBonusStatPointsAtLevel(newLevel, currentLevel);
+  const totalStatPointsGained = baseStatPointsGained + bonusStatPoints;
   
   return {
     newExp: remainingExp,
