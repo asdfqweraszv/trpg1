@@ -135,7 +135,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">TRPG 캐릭터</h1>
+            <h1 className="text-3xl font-bold text-white tracking-tight">던전</h1>
             <p className="text-gray-400 mt-1 text-sm">캐릭터를 선택하거나 새로 만드세요</p>
           </div>
           <div className="flex items-center gap-2">
