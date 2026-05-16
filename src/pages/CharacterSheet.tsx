@@ -899,7 +899,7 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
         {tab === 'notes' && (
           <div className="space-y-4">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm text-gray-400 mb-2">특수 능력 / 패시브</label>
+              <label className="block text-sm text-gray-400 mb-2">성격</label>
               <textarea
                 value={char.special_abilities}
                 onChange={e => setChar(prev => prev ? { ...prev, special_abilities: e.target.value } : prev)}
