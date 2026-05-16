@@ -147,36 +147,51 @@ async function handleCombatEnd() {
         ) : characters.length === 0 ? (
           <div className="text-center py-20 text-gray-500"><User size={48} className="mx-auto mb-4 opacity-30" /><p className="text-lg">캐릭터가 없습니다</p><p className="text-sm mt-1">새 캐릭터를 만들어보세요</p></div>
         ) : (
-          <div className="grid gap-3">
-            {characters.map((char) => (
-              <button key={char.id} onClick={() => onSelect(char.id!)} className="w-full text-left bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-xl p-5 transition-all group">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xl font-bold text-gray-300 overflow-hidden">
-                      {char.avatar_url ? <img src={char.avatar_url} alt={char.name} className="w-full h-full object-cover" /> : char.name[0]}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2"><span className="font-semibold text-white text-lg">{char.name}</span><span className="text-xs text-gray-500">Lv.{char.level}</span></div>
-                      <div className="flex items-center gap-2 mt-1"><span className="text-xs text-gray-400">{SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]}</span><span className="text-gray-600">·</span><span className={`text-xs px-2 py-0.5 rounded border font-medium ${jobColors[char.job] ?? 'text-gray-400 bg-gray-800 border-gray-700'}`}>{char.job}</span></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
-                      <div className="flex items-center gap-1 text-red-400"><Heart size={10} /><span>{char.current_hp}/{char.stat_hp + char.spent_hp}</span></div>
-                      <div className="flex items-center gap-1 text-blue-400"><Zap size={10} /><span>{char.current_mana}/{char.stat_mana + char.spent_mana}</span></div>
-                      <div className="flex items-center gap-1 text-orange-400"><Swords size={10} /><span>{char.stat_attack + char.spent_attack}</span></div>
-                      <div className="flex items-center gap-1 text-cyan-400"><Sparkles size={10} /><span>{char.stat_spell + char.spent_spell}</span></div>
-                      <div className="flex items-center gap-1 text-green-400"><Wind size={10} /><span>{char.stat_agility + char.spent_agility}</span></div>
-                      <div className="flex items-center gap-1 text-sky-400"><Shield size={10} /><span>{char.stat_defense}</span></div>
-                      <div className="flex items-center gap-1 text-teal-400"><Star size={10} /><span>{char.stat_magic_resist}</span></div>
-                    </div>
-                    <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
-                  </div>
-                </div>
-              </button>
-            ))}
+<div className="grid gap-3">
+  {characters.map((char) => (
+    <div key={char.id} className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        checked={selectedCharacters.has(char.id!)}
+        onChange={(e) => {
+          const newSet = new Set(selectedCharacters);
+          if (e.target.checked) {
+            newSet.add(char.id!);
+          } else {
+            newSet.delete(char.id!);
+          }
+          setSelectedCharacters(newSet);
+        }}
+        className="w-5 h-5 rounded border-gray-600 bg-gray-800 checked:bg-blue-600"
+      />
+      <button onClick={() => onSelect(char.id!)} className="flex-1 w-full text-left bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-xl p-5 transition-all group">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xl font-bold text-gray-300 overflow-hidden">
+              {char.avatar_url ? <img src={char.avatar_url} alt={char.name} className="w-full h-full object-cover" /> : char.name[0]}
+            </div>
+            <div>
+              <div className="flex items-center gap-2"><span className="font-semibold text-white text-lg">{char.name}</span><span className="text-xs text-gray-500">Lv.{char.level}</span></div>
+              <div className="flex items-center gap-2 mt-1"><span className="text-xs text-gray-400">{SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]}</span><span className="text-gray-600">·</span><span className={`text-xs px-2 py-0.5 rounded border font-medium ${jobColors[char.job] ?? 'text-gray-400 bg-gray-800 border-gray-700'}`}>{char.job}</span></div>
+            </div>
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+              <div className="flex items-center gap-1 text-red-400"><Heart size={10} /><span>{char.current_hp}/{char.stat_hp + char.spent_hp}</span></div>
+              <div className="flex items-center gap-1 text-blue-400"><Zap size={10} /><span>{char.current_mana}/{char.stat_mana + char.spent_mana}</span></div>
+              <div className="flex items-center gap-1 text-orange-400"><Swords size={10} /><span>{char.stat_attack + char.spent_attack}</span></div>
+              <div className="flex items-center gap-1 text-cyan-400"><Sparkles size={10} /><span>{char.stat_spell + char.spent_spell}</span></div>
+              <div className="flex items-center gap-1 text-green-400"><Wind size={10} /><span>{char.stat_agility + char.spent_agility}</span></div>
+              <div className="flex items-center gap-1 text-sky-400"><Shield size={10} /><span>{char.stat_defense}</span></div>
+              <div className="flex items-center gap-1 text-teal-400"><Star size={10} /><span>{char.stat_magic_resist}</span></div>
+            </div>
+            <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+          </div>
+        </div>
+      </button>
+    </div>
+  ))}
+</div>
 
         {showMasterLogin && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
