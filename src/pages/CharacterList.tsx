@@ -48,66 +48,62 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     }
   }
 
-  async function handleCombatEnd() {
-    if (!masterMode) {
-      alert('GM 모드에서만 사용 가능합니다.');
-      return;
+async function handleCombatEnd() {
+  if (!masterMode) {
+    alert('GM 모드에서만 사용 가능합니다.');
+    return;
+  }
+  
+  // 모든 캐릭터의 업데이트를 한 번에 처리
+  const updatePromises = characters.map(async (char) => {
+    const { data: equipmentData } = await supabase
+      .from('equipment')
+      .select('*')
+      .eq('character_id', char.id);
+    
+    const equipmentList = (equipmentData as Equipment[]) || [];
+    
+    const maxHp = getEffectiveStat(char, 'hp', equipmentList);
+    const maxMana = getEffectiveStat(char, 'mana', equipmentList);
+    
+    let newCurrentHp = char.current_hp;
+    if (char.species === 'orc') {
+      const hpRegen = getHpRegen(char, equipmentList);
+      newCurrentHp = Math.min(maxHp, (char.current_hp || 0) + hpRegen);
     }
     
-    for (const char of characters) {
-      // 장비 정보 가져오기
-      const { data: equipmentData } = await supabase
-        .from('equipment')
-        .select('*')
-        .eq('character_id', char.id);
-      
-      const equipmentList = (equipmentData as Equipment[]) || [];
-      
-      // 최대 체력/마나 계산
-      const maxHp = getEffectiveStat(char, 'hp', equipmentList);
-      const maxMana = getEffectiveStat(char, 'mana', equipmentList);
-      
-      // 체력: 오크만 재생량만큼 회복
-      let newCurrentHp = char.current_hp;
-      if (char.species === 'orc') {
-        const hpRegen = getHpRegen(char, equipmentList);
-        newCurrentHp = Math.min(maxHp, (char.current_hp || 0) + hpRegen);
-      }
-      
-      // 마나: 50% + 엘프 재생 회복
-      let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
-      if (char.species === 'elf') {
-        const manaRegen = getManaRegen(char, equipmentList);
-        newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
-      }
-      
-      // ✅ updates 객체 생성
-      const updates: any = {
-        current_hp: newCurrentHp,
-        current_mana: newCurrentMana,
-        updated_at: new Date().toISOString()
-      };
-      
-      // 언데드: 불사의 의지 사용 여부 초기화
-      if (char.species === 'undead') {
-        updates.undead_revive_used = false;
-      }
-      
-      // 기계 생명체: 과부화 사용 여부 초기화
-      if (char.species === 'machine') {
-        updates.machine_overload_used = false;
-      }
-      
-      // DB 업데이트
-      await supabase
-        .from('characters')
-        .update(updates)
-        .eq('id', char.id);
+    let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
+    if (char.species === 'elf') {
+      const manaRegen = getManaRegen(char, equipmentList);
+      newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
     }
+    
+    const updates: any = {
+      current_hp: newCurrentHp,
+      current_mana: newCurrentMana,
+      updated_at: new Date().toISOString()
+    };
+    
+    if (char.species === 'undead') {
+      updates.undead_revive_used = false;
+    }
+    
+    if (char.species === 'machine') {
+      updates.machine_overload_used = false;
+    }
+    
+    return supabase
+      .from('characters')
+      .update(updates)
+      .eq('id', char.id);
+  });
   
-    await loadCharacters();
-    alert('전투가 종료되었습니다! 모든 캐릭터는 마나를 회복했습니다.');
-  }
+  // 모든 업데이트를 병렬로 실행
+  await Promise.all(updatePromises);
+  
+  await loadCharacters();
+  alert('전투가 종료되었습니다! 모든 캐릭터는 마나를 회복했습니다.');
+}
 
   const jobColors: Record<string, string> = {
     '광전사': 'text-red-400 bg-red-950/40 border-red-800/50',
