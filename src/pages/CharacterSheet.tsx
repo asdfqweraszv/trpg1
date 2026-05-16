@@ -251,10 +251,15 @@ async function addExperience(amount: number) {
   if (!char || !unlocked) return;
   if (amount <= 0) return;
   
+async function addExperience(amount: number) {
+  if (!char || !unlocked) return;
+  if (amount <= 0) return;
+  
   // 1. 현재 경험치에 추가
   let newExp = (char.exp || 0) + amount;
   let newLevel = char.level;
   let totalStatPointsGained = 0;
+  let bonusPointsTotal = 0;
   const statPointsPerLevel = char.species === 'slime' ? 4 : 3;
   
   // 2. 레벨업이 가능한지 반복 확인
@@ -263,7 +268,15 @@ async function addExperience(amount: number) {
     if (newExp >= neededExp && newLevel < 40) {
       newExp -= neededExp;
       newLevel++;
+      
+      // 기본 스탯 포인트
       totalStatPointsGained += statPointsPerLevel;
+      
+      // 10레벨 달성 시 보너스 5포인트 (10, 20, 30, 40...)
+      if (newLevel % 10 === 0) {
+        bonusPointsTotal += 5;
+        totalStatPointsGained += 5;
+      }
     } else {
       break;
     }
@@ -274,7 +287,8 @@ async function addExperience(amount: number) {
     newLevel,
     oldExp: char.exp,
     newExp,
-    statPointsGained: totalStatPointsGained
+    statPointsGained: totalStatPointsGained,
+    bonusPoints: bonusPointsTotal
   });
   
   // 3. 업데이트할 내용 준비
@@ -290,10 +304,15 @@ async function addExperience(amount: number) {
   // 5. UI 즉시 업데이트
   setChar(prev => prev ? { ...prev, ...updates } : prev);
   
-  // 6. 레벨업 알림
+  // 6. 레벨업 알림 (보너스 정보 포함)
   const levelUps = newLevel - char.level;
   if (levelUps > 0) {
-    alert(`🎉 ${levelUps}레벨 업! +${totalStatPointsGained} 스탯 포인트 획득!`);
+    let message = `🎉 ${levelUps}레벨 업! (${char.level} → ${newLevel})\n`;
+    message += `✨ 기본 스탯 포인트: +${levelUps * statPointsPerLevel}\n`;
+    if (bonusPointsTotal > 0) {
+      message += `🎁 10레벨 달성 보너스: +${bonusPointsTotal}`;
+    }
+    alert(message);
   }
 }
 
