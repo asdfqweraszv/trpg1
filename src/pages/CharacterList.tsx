@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Character, SPECIES_LABELS } from '../types/character';
-import { verifyPassword } from '../utils/stats';
-import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, Star } from 'lucide-react';
+import { Character, SPECIES_LABELS, Equipment } from '../types/character';
+import { verifyPassword, getEffectiveStat, getHpRegen, getManaRegen } from '../utils/stats';
+import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, Star, RefreshCw } from 'lucide-react';
 
 interface Props {
   onSelect: (id: string) => void;
