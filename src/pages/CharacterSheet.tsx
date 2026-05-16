@@ -7,6 +7,9 @@ import {
   Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
 } from 'lucide-react';
 import { getExpNeededForNextLevel, getExpToNextLevel, addExp, calculateLevelUp } from '../utils/exp';
+import { Equipment } from '../types/character';
+import { getEffectiveStat, getHpRegen, getManaRegen } from '../utils/stats';
+import { RefreshCw } from 'lucide-react';
 
 interface Props {
   characterId: string;
