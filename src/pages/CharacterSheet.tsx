@@ -246,10 +246,6 @@ const visibleStats = ALL_STATS;
     setEquipment(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
-
-async function addExperience(amount: number) {
-  if (!char || !unlocked) return;
-  if (amount <= 0) return;
   
 async function addExperience(amount: number) {
   if (!char || !unlocked) return;
@@ -314,6 +310,7 @@ async function addExperience(amount: number) {
     }
     alert(message);
   }
+}
 
     async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (!char || !e.target.files || e.target.files.length === 0) return;
