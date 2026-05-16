@@ -846,15 +846,17 @@ onSave={async (eq) => {
                       </div>
                     )}
                     {equipment.map(eq => {
-                      const bonus = eq[`bonus_${s}` as keyof Equipment] as number;
-                      if (!bonus) return null;
-                      return (
-                        <div key={eq.id} className="flex justify-between">
-                          <span className="truncate max-w-16">{eq.item_name || eq.slot_name}</span>
-                          <span className="text-amber-400">+{bonus}</span>
-                        </div>
-                      );
-                    })}
+  const bonus = eq[`bonus_${s}` as keyof Equipment] as number;
+  if (!bonus) return null;
+  return (
+    <div key={eq.id} className="flex justify-between">
+      <span className="truncate max-w-16">{eq.item_name || eq.slot_name}</span>
+      <span className={bonus > 0 ? 'text-amber-400' : 'text-red-400'}>
+        {bonus > 0 ? `+${bonus}` : bonus}
+      </span>
+    </div>
+  );
+})}
                   </div>
 
                   {unlocked && !isFixed && (
