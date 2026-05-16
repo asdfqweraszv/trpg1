@@ -125,18 +125,17 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
             <p className="text-gray-400 mt-1 text-sm">캐릭터를 선택하거나 새로 만드세요</p>
           </div>
           <div className="flex items-center gap-2">
-            {masterMode && (
-              <>
-                <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">GM 모드</span>
-                <button
-                  onClick={handleCombatEnd}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-500 disabled:bg-red-800 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
-                >
-                  <RefreshCw size={16} />
-                  전투 종료
-                </button>
-              </>
-            )}
+{masterMode && (
+  <>
+    <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">GM 모드</span>
+    <button
+      onClick={handleCombatEnd}
+      className="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
+    >
+      전투 종료
+    </button>
+  </>
+)}
             <button onClick={() => setShowMasterLogin(true)} className="text-xs text-gray-500 hover:text-amber-400 transition-colors">GM 로그인</button>
             <button onClick={onCreate} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm">
               <Plus size={16} />새 캐릭터
