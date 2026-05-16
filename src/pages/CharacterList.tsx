@@ -46,6 +46,58 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     }
   }
 
+  async function handleCombatEnd() {
+  if (!masterMode) {
+    alert('GM 모드에서만 사용 가능합니다.');
+    return;
+  }
+  
+  setCombatEnding(true);
+  
+  for (const char of characters) {
+    // 장비 정보 가져오기
+    const { data: equipmentData } = await supabase
+      .from('equipment')
+      .select('*')
+      .eq('character_id', char.id);
+    
+    const equipmentList = (equipmentData as Equipment[]) || [];
+    
+    // 최대 체력/마나 계산
+    const maxHp = getEffectiveStat(char, 'hp', equipmentList);
+    const maxMana = getEffectiveStat(char, 'mana', equipmentList);
+    
+    // 1. 최대 체력/마나의 50% 회복
+    let newCurrentHp = Math.min(maxHp, (char.current_hp || 0) + Math.floor(maxHp * 0.5));
+    let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
+    
+    // 2. 종족 특성 회복 (오크: 체력 재생, 엘프: 마나 재생)
+    if (char.species === 'orc') {
+      const hpRegen = getHpRegen(char, equipmentList);
+      newCurrentHp = Math.min(maxHp, newCurrentHp + hpRegen);
+    }
+    
+    if (char.species === 'elf') {
+      const manaRegen = getManaRegen(char, equipmentList);
+      newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
+    }
+    
+    // DB 업데이트
+    await supabase
+      .from('characters')
+      .update({
+        current_hp: newCurrentHp,
+        current_mana: newCurrentMana,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', char.id);
+  }
+  
+  await loadCharacters();
+  setCombatEnding(false);
+  alert('전투가 종료되었습니다! 모든 캐릭터가 회복되었습니다.');
+}
+
   const jobColors: Record<string, string> = {
     '광전사': 'text-red-400 bg-red-950/40 border-red-800/50',
     '몽크': 'text-amber-400 bg-amber-950/40 border-amber-800/50',
