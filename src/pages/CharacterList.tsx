@@ -17,6 +17,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const [showMasterLogin, setShowMasterLogin] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
   const [masterError, setMasterError] = useState('');
+  const [combatEnding, setCombatEnding] = useState(false);
 
   useEffect(() => {
     supabase
