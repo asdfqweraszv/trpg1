@@ -17,6 +17,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const [showMasterLogin, setShowMasterLogin] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
   const [masterError, setMasterError] = useState('');
+  const [selectedCharacters, setSelectedCharacters] = useState<Set<string>>(new Set());
 
   async function loadCharacters() {
     const { data } = await supabase
