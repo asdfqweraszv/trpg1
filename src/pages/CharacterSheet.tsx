@@ -314,7 +314,6 @@ async function addExperience(amount: number) {
     }
     alert(message);
   }
-}
 
     async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (!char || !e.target.files || e.target.files.length === 0) return;
