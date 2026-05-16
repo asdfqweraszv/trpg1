@@ -156,7 +156,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
             )}
             <button onClick={() => setShowMasterLogin(true)} className="text-xs text-gray-500 hover:text-amber-400 transition-colors">GM 로그인</button>
             <button onClick={onCreate} className="flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm shadow-md">
-  <Plus size={16} /> 새 용사 모집
+  <Plus size={16} /> Recruit
 </button>
           </div>
         </div>
