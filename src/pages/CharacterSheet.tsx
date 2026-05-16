@@ -505,7 +505,7 @@ async function addExperience(amount: number) {
   <div className="mt-2">
     <div className="flex justify-between text-xs text-gray-400 mb-1">
       <span>경험치</span>
-      <span>{char.exp || 0} / {getExpNeededForNextLevel(char.level)}</span>
+      <span>{(char.exp || 0)} / {getExpNeededForNextLevel(char.level)}</span>
     </div>
     <div className="w-32 h-1.5 bg-gray-800 rounded-full overflow-hidden">
       <div 
@@ -517,7 +517,6 @@ async function addExperience(amount: number) {
     </div>
   </div>
   
-  {/* ✅ 경험치 추가 버튼 (수정 모드에서만) */}
   {unlocked && (
     <button
       onClick={() => setShowExpModal(true)}
@@ -527,6 +526,13 @@ async function addExperience(amount: number) {
     </button>
   )}
   
+  {statPoints > 0 && (
+    <div className="text-xs text-amber-400 mt-1 font-medium">
+      스탯 포인트: {statPoints}
+    </div>
+  )}
+</div>
+            
   {statPoints > 0 && (
     <div className="text-xs text-amber-400 mt-1 font-medium">
       스탯 포인트: {statPoints}
