@@ -5,40 +5,34 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// 프로필 이미지 업로드 함수 (Base64 방식)
 export async function uploadAvatar(characterId: string, file: File): Promise<string | null> {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      console.log('✅ 이미지 Base64 변환 완료 (길이:', base64String.length, ')');
-      resolve(base64String);
-    };
-    reader.onerror = (error) => {
-      console.error('❌ 파일 읽기 실패:', error);
-      resolve(null);
-    };
-    reader.readAsDataURL(file);
-  });
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${characterId}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+
+    const { error } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (error) {
+      console.error('Upload error:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    return data.publicUrl;
+  } catch (err) {
+    console.error('Error:', err);
+    return null;
+  }
 }
 
-// avatars 버킷 생성 (필요 없을 수 있음)
 export async function createAvatarsBucket() {
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const exists = buckets?.some(b => b.name === 'avatars');
-    
-    if (!exists) {
-      const { error } = await supabase.storage.createBucket('avatars', {
-        public: true,
-      });
-      if (error) {
-        console.error('Bucket creation error:', error);
-      } else {
-        console.log('Avatars bucket created!');
-      }
-    }
-  } catch (err) {
-    console.error('Bucket check error:', err);
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const exists = buckets?.some(b => b.name === 'avatars');
+  
+  if (!exists) {
+    await supabase.storage.createBucket('avatars', { public: true });
   }
 }
