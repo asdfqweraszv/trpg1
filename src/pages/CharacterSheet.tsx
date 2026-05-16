@@ -939,17 +939,19 @@ onSave={async (eq) => {
               
               {/* 스탯 요약 표시 (0 아닌 것만) */}
               <div className="flex flex-wrap gap-2">
-                {ALL_STATS.map(s => {
-                  const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
-                  const totalBonus = bonus + (eq.enhance_level || 0);
-                  if (totalBonus === 0) return null;
-                  return (
-                    <span key={s} className="text-xs px-2 py-1 rounded bg-gray-800 text-amber-400">
-                      {STAT_LABELS[s]} +{totalBonus}
-                    </span>
-                  );
-                })}
-              </div>
+  {ALL_STATS.map(s => {
+    const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
+    const totalBonus = bonus + (eq.enhance_level || 0);
+    if (totalBonus === 0) return null;
+    return (
+      <span key={s} className={`text-xs px-2 py-1 rounded bg-gray-800 ${
+        totalBonus > 0 ? 'text-amber-400' : 'text-red-400'
+      }`}>
+        {STAT_LABELS[s]} {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
+      </span>
+    );
+  })}
+</div>
               
               {/* 드워프 강화 버튼 */}
               {char.species === 'dwarf' && unlocked && eq.item_name && (
