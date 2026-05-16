@@ -131,7 +131,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const inactiveCharacters = characters.filter(char => char.is_active === false);
 
   return (
-<div className="min-h-screen bg-black text-gray-100 relative">
+    <div className="min-h-screen bg-black text-gray-100 relative">
   <div className="fixed inset-0 bg-gradient-to-tr from-amber-900/10 via-transparent to-purple-900/10 pointer-events-none"></div>
   <div className="relative z-10">
       <div className="max-w-4xl mx-auto px-4 py-10">
@@ -283,5 +283,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         )}
       </div>
     </div>
+  </div>
   );
 }
