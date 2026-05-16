@@ -443,7 +443,7 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <h2 className="font-bold mb-4 text-lg">장비 편집: {editEq.slot_name}</h2>
         
         {/* 아이템 이름 */}
