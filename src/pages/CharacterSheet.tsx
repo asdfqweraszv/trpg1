@@ -569,6 +569,25 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
       )}
 
           {showExpModal && <ExpModal />}
+      {showEquipmentModal && editingEquipment && (
+  <EquipmentModal
+    equipment={editingEquipment}
+    onSave={async (eq) => {
+      await updateEquipmentField(eq.id!, 'item_name', eq.item_name);
+      await updateEquipmentField(eq.id!, 'rarity', eq.rarity);
+      for (const stat of ALL_STATS) {
+        await updateEquipmentField(eq.id!, `bonus_${stat}`, eq[`bonus_${stat}` as keyof Equipment] as number);
+      }
+      await updateEquipmentField(eq.id!, 'enhance_level', eq.enhance_level || 0);
+      setShowEquipmentModal(false);
+      setEditingEquipment(null);
+    }}
+    onClose={() => {
+      setShowEquipmentModal(false);
+      setEditingEquipment(null);
+    }}
+  />
+)}
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
