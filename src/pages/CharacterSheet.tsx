@@ -894,33 +894,35 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
                       </button>
                     )}
                   </div>
-                  {eq ? (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <input
-                          value={eq.item_name}
-                          onChange={e => updateEquipmentField(eq.id!, 'item_name', e.target.value)}
-                          disabled={!masterMode}
-                          placeholder="아이템 이름"
-                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 transition-colors"
-                        />
-                        {masterMode && (
-                          <select
-                            value={eq.rarity || '일반'}
-                            onChange={e => updateEquipmentField(eq.id!, 'rarity', e.target.value)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${RARITY_COLORS[eq.rarity || '일반']}`}
-                          >
-                            {RARITY_LIST.map(r => (
-                              <option key={r} value={r}>{r}</option>
-                            ))}
-                          </select>
-                        )}
-                        {!masterMode && eq.rarity && (
-                          <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${RARITY_COLORS[eq.rarity]}`}>
-                            {eq.rarity}
-                          </span>
-                        )}
-                      </div>
+{eq ? (
+  <div className="space-y-3">
+    <div className="flex gap-2">
+      <div 
+        onClick={() => {
+          setEditingEquipment(eq);
+          setShowEquipmentModal(true);
+        }}
+        className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
+      >
+        {eq.item_name || '클릭하여 장비 설정'}
+      </div>
+      {/* ... 나머지 버튼들 ... */}
+    </div>
+    
+    {/* 스탯 요약 표시 */}
+    <div className="flex flex-wrap gap-2">
+      {ALL_STATS.map(s => {
+        const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
+        const totalBonus = bonus + (eq.enhance_level || 0);
+        if (totalBonus === 0) return null;
+        return (
+          <span key={s} className="text-xs px-2 py-1 rounded bg-gray-800 text-amber-400">
+            {STAT_LABELS[s]} +{totalBonus}
+          </span>
+        );
+      })}
+    </div>
+  </div>
 
                       {/* 드워프 강화 버튼 */}
                       {char.species === 'dwarf' && unlocked && eq.item_name && (
