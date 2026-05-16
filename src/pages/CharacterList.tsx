@@ -66,22 +66,29 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     
     const equipmentList = (equipmentData as Equipment[]) || [];
     
-    // 최대 마나 계산
+    // 최대 체력/마나 계산
+    const maxHp = getEffectiveStat(char, 'hp', equipmentList);
     const maxMana = getEffectiveStat(char, 'mana', equipmentList);
     
-    // 마나만 회복 (최대 마나의 50% 회복)
-    let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
+    // 체력: 오크만 재생량만큼 회복 (50% 회복은 없음)
+    let newCurrentHp = char.current_hp;
+    if (char.species === 'orc') {
+      const hpRegen = getHpRegen(char, equipmentList);
+      newCurrentHp = Math.min(maxHp, (char.current_hp || 0) + hpRegen);
+    }
     
-    // 엘프 종족 특성: 추가 마나 재생
+    // 마나: 50% + 엘프 재생 회복
+    let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
     if (char.species === 'elf') {
       const manaRegen = getManaRegen(char, equipmentList);
       newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
     }
     
-    // DB 업데이트 (체력은 그대로, 마나만 변경)
+    // DB 업데이트
     await supabase
       .from('characters')
       .update({
+        current_hp: newCurrentHp,
         current_mana: newCurrentMana,
         updated_at: new Date().toISOString()
       })
@@ -90,7 +97,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   
   await loadCharacters();
   setCombatEnding(false);
-  alert('전투가 종료되었습니다! 모든 캐릭터의 마나가 회복되었습니다.');
+  alert('전투가 종료되었습니다! 모든 캐릭터는 마나를 회복했습니다.');
 }
 
   const jobColors: Record<string, string> = {
