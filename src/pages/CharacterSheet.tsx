@@ -867,6 +867,7 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
                           const val = (eq[bonusKey] as number) ?? 0;
                           const enhanceBonus = (eq.enhance_level ?? 0);
                           const totalBonus = val + enhanceBonus;
+                          if (totalBonus === 0) return null;
                           return (
                             <div key={s} className="flex items-center gap-2">
                               <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
