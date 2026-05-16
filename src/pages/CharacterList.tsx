@@ -134,10 +134,16 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-amber-950/20 text-gray-100">
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">던전</h1>
-            <p className="text-gray-400 mt-1 text-sm">끝까지 살아남으세요</p>
-          </div>
+<div>
+  <div className="flex items-center gap-2">
+    <span className="text-2xl">⚔️</span>
+    <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+      TRPG 캐릭터
+    </h1>
+    <span className="text-2xl">🛡️</span>
+  </div>
+  <p className="text-amber-600/70 mt-1 text-sm ml-10">던전을 탐험할 용사를 선택하세요</p>
+</div>
           <div className="flex items-center gap-2">
             {masterMode && (
               <>
