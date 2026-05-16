@@ -517,6 +517,7 @@ async function addExperience(amount: number) {
     </div>
   </div>
   
+  {/* ✅ 경험치 추가 버튼 (수정 모드에서만) */}
   {unlocked && (
     <button
       onClick={() => setShowExpModal(true)}
@@ -526,13 +527,6 @@ async function addExperience(amount: number) {
     </button>
   )}
   
-  {statPoints > 0 && (
-    <div className="text-xs text-amber-400 mt-1 font-medium">
-      스탯 포인트: {statPoints}
-    </div>
-  )}
-</div>
-            
   {statPoints > 0 && (
     <div className="text-xs text-amber-400 mt-1 font-medium">
       스탯 포인트: {statPoints}
