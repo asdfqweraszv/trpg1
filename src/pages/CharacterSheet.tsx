@@ -913,21 +913,21 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
               </button>
             )}
           </div>
+          
           {eq ? (
             <div className="space-y-3">
-              <div className="flex gap-2">
-                <div 
-                  onClick={() => {
-                    setEditingEquipment(eq);
-                    setShowEquipmentModal(true);
-                  }}
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
-                >
-                  {eq.item_name || '클릭하여 장비 설정'}
-                </div>
+              {/* 클릭 가능한 장비 이름 */}
+              <div 
+                onClick={() => {
+                  setEditingEquipment(eq);
+                  setShowEquipmentModal(true);
+                }}
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
+              >
+                {eq.item_name || '클릭하여 장비 설정'}
               </div>
               
-              {/* 스탯 요약 표시 */}
+              {/* 스탯 요약 표시 (0 아닌 것만) */}
               <div className="flex flex-wrap gap-2">
                 {ALL_STATS.map(s => {
                   const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
@@ -940,6 +940,35 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
                   );
                 })}
               </div>
+              
+              {/* 드워프 강화 버튼 */}
+              {char.species === 'dwarf' && unlocked && eq.item_name && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-gray-500">
+                    강화: +{eq.enhance_level ?? 0}강
+                    {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                      <span className="text-gray-600 ml-1">
+                        (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
+                      </span>
+                    )}
+                  </span>
+                  {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                    <button
+                      onClick={() => enhanceEquipment(eq)}
+                      className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
+                    >
+                      강화
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {/* 강화 결과 메시지 */}
+              {enhanceMessage && (
+                <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
+                  {enhanceMessage}
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-xs text-gray-600 italic">장비 없음</div>
@@ -949,101 +978,6 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     })}
   </div>
 )}
-{eq ? (
-  <div className="space-y-3">
-    <div className="flex gap-2">
-      <div 
-        onClick={() => {
-          setEditingEquipment(eq);
-          setShowEquipmentModal(true);
-        }}
-        className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
-      >
-        {eq.item_name || '클릭하여 장비 설정'}
-      </div>
-      {/* ... 나머지 버튼들 ... */}
-    </div>
-    
-    {/* 스탯 요약 표시 */}
-    <div className="flex flex-wrap gap-2">
-      {ALL_STATS.map(s => {
-        const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
-        const totalBonus = bonus + (eq.enhance_level || 0);
-        if (totalBonus === 0) return null;
-        return (
-          <span key={s} className="text-xs px-2 py-1 rounded bg-gray-800 text-amber-400">
-            {STAT_LABELS[s]} +{totalBonus}
-          </span>
-        );
-      })}
-    </div>
-  </div>
-
-                      {/* 드워프 강화 버튼 */}
-                      {char.species === 'dwarf' && unlocked && eq.item_name && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
-                            강화: +{eq.enhance_level ?? 0}강
-                            {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                              <span className="text-gray-600 ml-1">
-                                (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
-                              </span>
-                            )}
-                          </span>
-                          {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                            <button
-                              onClick={() => enhanceEquipment(eq)}
-                              className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
-                            >
-                              강화
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 강화 결과 메시지 */}
-                      {enhanceMessage && (
-                        <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
-                          {enhanceMessage}
-                        </div>
-                      )}
-
-                      {/* 스탯 보너스 목록 */}
-                      <div className="grid grid-cols-2 gap-2">
-                        {ALL_STATS.map(s => {
-                          const bonusKey = `bonus_${s}` as keyof Equipment;
-                          const val = (eq[bonusKey] as number) ?? 0;
-                          const enhanceBonus = (eq.enhance_level ?? 0);
-                          const totalBonus = val + enhanceBonus;
-                          if (totalBonus === 0) return null;
-                          return (
-                            <div key={s} className="flex items-center gap-2">
-                              <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
-                              {masterMode ? (
-                                <input
-                                  type="number"
-                                  value={val}
-                                  onChange={e => updateEquipmentField(eq.id!, bonusKey, Number(e.target.value))}
-                                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
-                                />
-                              ) : (
-                                <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-                                  {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-xs text-gray-600 italic">장비 없음</div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
 
         {tab === 'notes' && (
           <div className="space-y-4">
