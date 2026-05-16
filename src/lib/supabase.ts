@@ -7,20 +7,21 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // 프로필 이미지 업로드 함수
 export async function uploadAvatar(characterId: string, file: File): Promise<string | null> {
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${characterId}-${Date.now()}.${fileExt}`;
-    const filePath = fileName;
-
-    console.log('업로드 시도:', filePath);
-
-    const { error, data } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file, {
-        upsert: true,
-        cacheControl: '3600',
-        contentType: file.type,
-      });
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // 파일을 Base64 문자열로 변환
+      const base64String = reader.result as string;
+      console.log('✅ 이미지 Base64 변환 완료 (길이:', base64String.length, ')');
+      resolve(base64String);
+    };
+    reader.onerror = (error) => {
+      console.error('❌ 파일 읽기 실패:', error);
+      reject(null);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
     if (error) {
       console.error('업로드 에러:', error);
