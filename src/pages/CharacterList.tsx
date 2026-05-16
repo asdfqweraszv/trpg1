@@ -54,14 +54,24 @@ async function handleCombatEnd() {
     return;
   }
   
-  // 모든 캐릭터의 업데이트를 한 번에 처리
+  // 모든 캐릭터의 장비 정보를 한 번에 가져오기
+  const characterIds = characters.map(c => c.id);
+  const { data: allEquipment } = await supabase
+    .from('equipment')
+    .select('*')
+    .in('character_id', characterIds);
+  
+  const equipmentByCharId: Record<string, Equipment[]> = {};
+  (allEquipment || []).forEach(eq => {
+    if (!equipmentByCharId[eq.character_id]) {
+      equipmentByCharId[eq.character_id] = [];
+    }
+    equipmentByCharId[eq.character_id].push(eq);
+  });
+  
+  // 모든 업데이트를 병렬로 실행
   const updatePromises = characters.map(async (char) => {
-    const { data: equipmentData } = await supabase
-      .from('equipment')
-      .select('*')
-      .eq('character_id', char.id);
-    
-    const equipmentList = (equipmentData as Equipment[]) || [];
+    const equipmentList = equipmentByCharId[char.id] || [];
     
     const maxHp = getEffectiveStat(char, 'hp', equipmentList);
     const maxMana = getEffectiveStat(char, 'mana', equipmentList);
@@ -84,25 +94,15 @@ async function handleCombatEnd() {
       updated_at: new Date().toISOString()
     };
     
-    if (char.species === 'undead') {
-      updates.undead_revive_used = false;
-    }
+    if (char.species === 'undead') updates.undead_revive_used = false;
+    if (char.species === 'machine') updates.machine_overload_used = false;
     
-    if (char.species === 'machine') {
-      updates.machine_overload_used = false;
-    }
-    
-    return supabase
-      .from('characters')
-      .update(updates)
-      .eq('id', char.id);
+    return supabase.from('characters').update(updates).eq('id', char.id);
   });
   
-  // 모든 업데이트를 병렬로 실행
   await Promise.all(updatePromises);
-  
   await loadCharacters();
-  alert('전투가 종료되었습니다! 모든 캐릭터는 마나를 회복했습니다.');
+  alert('전투가 종료되었습니다!');
 }
 
   const jobColors: Record<string, string> = {
