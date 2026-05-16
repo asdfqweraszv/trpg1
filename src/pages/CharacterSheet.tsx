@@ -578,20 +578,24 @@ function EquipmentModal({ equipment, onSave, onClose }: {
       {showEquipmentModal && editingEquipment && (
   <EquipmentModal
     equipment={editingEquipment}
-    onSave={async (eq) => {
-      await updateEquipmentField(eq.id!, 'item_name', eq.item_name);
-      await updateEquipmentField(eq.id!, 'rarity', eq.rarity);
-      for (const stat of ALL_STATS) {
-        await updateEquipmentField(eq.id!, `bonus_${stat}`, eq[`bonus_${stat}` as keyof Equipment] as number);
-      }
-      await updateEquipmentField(eq.id!, 'enhance_level', eq.enhance_level || 0);
-      setShowEquipmentModal(false);
-      setEditingEquipment(null);
-    }}
-    onClose={() => {
-      setShowEquipmentModal(false);
-      setEditingEquipment(null);
-    }}
+onSave={async (eq) => {
+  // 모든 업데이트를 병렬로 실행
+  const promises = [];
+  
+  promises.push(updateEquipmentField(eq.id!, 'item_name', eq.item_name));
+  promises.push(updateEquipmentField(eq.id!, 'rarity', eq.rarity));
+  promises.push(updateEquipmentField(eq.id!, 'enhance_level', eq.enhance_level || 0));
+  
+  for (const stat of ALL_STATS) {
+    promises.push(updateEquipmentField(eq.id!, `bonus_${stat}`, eq[`bonus_${stat}` as keyof Equipment] as number));
+  }
+  
+  await Promise.all(promises);  // 병렬 실행으로 빠르게!
+  
+  setShowEquipmentModal(false);
+  setEditingEquipment(null);
+  alert('장비가 저장되었습니다!');
+}}
   />
 )}
 
