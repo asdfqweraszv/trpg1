@@ -361,16 +361,33 @@ async function addExperience(amount: number) {
   }
 }
 
-    async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!char || !e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    setUploading(true);
+async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  if (!char || !e.target.files || e.target.files.length === 0) return;
+  
+  const file = e.target.files[0];
+  console.log('선택한 파일:', file.name, file.type, file.size);
+  
+  setUploading(true);
+  
+  try {
     const publicUrl = await uploadAvatar(char.id!, file);
+    console.log('받은 URL:', publicUrl);
+    
     if (publicUrl) {
       await saveChar({ avatar_url: publicUrl });
+      console.log('DB 저장 완료');
+      alert('프로필 사진이 업데이트되었습니다!');
+    } else {
+      console.error('publicUrl이 null입니다');
+      alert('업로드 실패');
     }
-    setUploading(false);
+  } catch (err) {
+    console.error('에러:', err);
+    alert('오류 발생');
   }
+  
+  setUploading(false);
+}
 
     function ExpModal() {
     const [expAmount, setExpAmount] = useState('');
