@@ -94,6 +94,16 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
       })
       .eq('id', char.id);
   }
+
+       // 언데드: 불사의 의지 사용 여부 초기화 (false = 사용 가능한 상태)
+    if (char.species === 'undead') {
+      updates.undead_revive_used = false;
+    }
+    
+    // 기계 생명체: 과부화 사용 여부 초기화 (false = 사용 가능한 상태)
+    if (char.species === 'machine') {
+      updates.machine_overload_used = false;
+    }
   
   await loadCharacters();
   setCombatEnding(false);
