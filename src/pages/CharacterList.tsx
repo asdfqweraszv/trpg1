@@ -49,52 +49,49 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     }
   }
 
-  async function handleCombatEnd() {
-    if (!masterMode) {
-      alert('GM 모드에서만 사용 가능합니다.');
-      return;
-    }
-    
-    setCombatEnding(true);
-    
-    for (const char of characters) {
-      const { data: equipmentData } = await supabase
-        .from('equipment')
-        .select('*')
-        .eq('character_id', char.id);
-      
-      const equipmentList = (equipmentData as Equipment[]) || [];
-      
-      const maxHp = getEffectiveStat(char, 'hp', equipmentList);
-      const maxMana = getEffectiveStat(char, 'mana', equipmentList);
-      
-      let newCurrentHp = Math.min(maxHp, (char.current_hp || 0) + Math.floor(maxHp * 0.5));
-      let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
-      
-      if (char.species === 'orc') {
-        const hpRegen = getHpRegen(char, equipmentList);
-        newCurrentHp = Math.min(maxHp, newCurrentHp + hpRegen);
-      }
-      
-      if (char.species === 'elf') {
-        const manaRegen = getManaRegen(char, equipmentList);
-        newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
-      }
-      
-      await supabase
-        .from('characters')
-        .update({
-          current_hp: newCurrentHp,
-          current_mana: newCurrentMana,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', char.id);
-    }
-    
-    await loadCharacters();
-    setCombatEnding(false);
-    alert('전투가 종료되었습니다! 모든 캐릭터가 회복되었습니다.');
+ async function handleCombatEnd() {
+  if (!masterMode) {
+    alert('GM 모드에서만 사용 가능합니다.');
+    return;
   }
+  
+  setCombatEnding(true);
+  
+  for (const char of characters) {
+    // 장비 정보 가져오기
+    const { data: equipmentData } = await supabase
+      .from('equipment')
+      .select('*')
+      .eq('character_id', char.id);
+    
+    const equipmentList = (equipmentData as Equipment[]) || [];
+    
+    // 최대 마나 계산
+    const maxMana = getEffectiveStat(char, 'mana', equipmentList);
+    
+    // 마나만 회복 (최대 마나의 50% 회복)
+    let newCurrentMana = Math.min(maxMana, (char.current_mana || 0) + Math.floor(maxMana * 0.5));
+    
+    // 엘프 종족 특성: 추가 마나 재생
+    if (char.species === 'elf') {
+      const manaRegen = getManaRegen(char, equipmentList);
+      newCurrentMana = Math.min(maxMana, newCurrentMana + manaRegen);
+    }
+    
+    // DB 업데이트 (체력은 그대로, 마나만 변경)
+    await supabase
+      .from('characters')
+      .update({
+        current_mana: newCurrentMana,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', char.id);
+  }
+  
+  await loadCharacters();
+  setCombatEnding(false);
+  alert('전투가 종료되었습니다! 모든 캐릭터의 마나가 회복되었습니다.');
+}
 
   const jobColors: Record<string, string> = {
     '광전사': 'text-red-400 bg-red-950/40 border-red-800/50',
