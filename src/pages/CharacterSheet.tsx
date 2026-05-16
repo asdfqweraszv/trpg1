@@ -433,6 +433,95 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
       </div>
     );
   }
+
+  function EquipmentModal({ equipment, onSave, onClose }: { 
+  equipment: Equipment; 
+  onSave: (eq: Equipment) => void; 
+  onClose: () => void;
+}) {
+  const [editEq, setEditEq] = useState<Equipment>({ ...equipment });
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <h2 className="font-bold mb-4 text-lg">장비 편집: {editEq.slot_name}</h2>
+        
+        {/* 아이템 이름 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">아이템 이름</label>
+          <input
+            type="text"
+            value={editEq.item_name}
+            onChange={e => setEditEq({ ...editEq, item_name: e.target.value })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            placeholder="아이템 이름"
+          />
+        </div>
+        
+        {/* 희귀도 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">희귀도</label>
+          <select
+            value={editEq.rarity}
+            onChange={e => setEditEq({ ...editEq, rarity: e.target.value as ItemRarity })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+          >
+            {RARITY_LIST.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* 모든 스탯 입력 필드 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {ALL_STATS.map(stat => (
+            <div key={stat}>
+              <label className="block text-xs text-gray-400 mb-1">{STAT_LABELS[stat]}</label>
+              <input
+                type="number"
+                value={(editEq[`bonus_${stat}` as keyof Equipment] as number) || 0}
+                onChange={e => setEditEq({ 
+                  ...editEq, 
+                  [`bonus_${stat}`]: parseInt(e.target.value) || 0 
+                })}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-white text-sm"
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* 강화 레벨 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">강화 레벨</label>
+          <input
+            type="number"
+            value={editEq.enhance_level || 0}
+            onChange={e => setEditEq({ ...editEq, enhance_level: parseInt(e.target.value) || 0 })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            min="0"
+            max="4"
+          />
+        </div>
+        
+        {/* 버튼 */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onSave(editEq)}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition-colors"
+          >
+            저장
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg font-medium transition-colors"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
   
   if (loading) {
     return (
