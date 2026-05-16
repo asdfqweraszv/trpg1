@@ -175,7 +175,7 @@ export default function CreateCharacter({ onBack, onCreated }: Props) {
         species,
         job,
         level: 1,
-        exp: 0
+        exp: 0, 
         stat_hp: statsToSave['hp'],
         stat_attack: statsToSave['attack'],
         stat_spell: statsToSave['spell'],
