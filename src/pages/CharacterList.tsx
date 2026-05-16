@@ -115,7 +115,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     
     await Promise.all(updatePromises);
     await loadCharacters();
-    alert(`${activeCharacters.length}명의 활성 캐릭터가 전투 종료 처리를 받았습니다.`);
+    alert(`전투가 종료되었습니다`);
   }
 
   const jobColors: Record<string, string> = {
@@ -161,7 +161,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Users size={18} className="text-green-400" />
-            <h2 className="text-lg font-semibold text-white">활성 캐릭터</h2>
+            <h2 className="text-lg font-semibold text-white">Dungeon Explorer</h2>
             <span className="text-xs text-gray-500">({activeCharacters.length}명)</span>
           </div>
           
