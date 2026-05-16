@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase, uploadAvatar } from '../lib/supabase';
 import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job, Stats } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20, getHpRegen, getManaRegen } from '../utils/stats';
+import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20 } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
-  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera, RefreshCw
+  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
 } from 'lucide-react';
 import { getExpNeededForNextLevel, getExpToNextLevel, addExp, calculateLevelUp } from '../utils/exp';
 
@@ -116,62 +116,13 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
 const statPoints = char?.stat_points ?? 0;
 const visibleStats = ALL_STATS;
 
-async function saveChar(updates: Partial<Character>) {
-  if (!char) return;
-  setSaving(true);
-  
-  // 현재 최대 체력/마나 계산
-  const currentMaxHp = getEffectiveStat(char, 'hp', equipment);
-  const currentMaxMana = getEffectiveStat(char, 'mana', equipment);
-  
-  // 업데이트 후의 임시 캐릭터 객체 생성
-  const tempChar = { ...char, ...updates };
-  const newMaxHp = getEffectiveStat(tempChar, 'hp', equipment);
-  const newMaxMana = getEffectiveStat(tempChar, 'mana', equipment);
-  
-  // 최대 체력이 증가했고, current_hp가 업데이트에 없으면 자동 조정
-  let finalUpdates = { ...updates };
-  if (newMaxHp > currentMaxHp && updates.current_hp === undefined) {
-    const increase = newMaxHp - currentMaxHp;
-    const newCurrentHp = (char.current_hp || 0) + increase;
-    finalUpdates.current_hp = Math.min(newCurrentHp, newMaxHp);
-    
-    console.log('체력 자동 증가:', {
-      oldMaxHp: currentMaxHp,
-      newMaxHp,
-      oldCurrentHp: char.current_hp,
-      newCurrentHp: finalUpdates.current_hp
-    });
+  async function saveChar(updates: Partial<Character>) {
+    if (!char) return;
+    setSaving(true);
+    const { data } = await supabase.from('characters').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', char.id!).select().single();
+    if (data) setChar(data as Character);
+    setSaving(false);
   }
-  
-  // 최대 마나가 증가했고, current_mana가 업데이트에 없으면 자동 조정
-  if (newMaxMana > currentMaxMana && updates.current_mana === undefined) {
-    const increase = newMaxMana - currentMaxMana;
-    const newCurrentMana = (char.current_mana || 0) + increase;
-    finalUpdates.current_mana = Math.min(newCurrentMana, newMaxMana);
-    
-    console.log('마나 자동 증가:', {
-      oldMaxMana: currentMaxMana,
-      newMaxMana,
-      oldCurrentMana: char.current_mana,
-      newCurrentMana: finalUpdates.current_mana
-    });
-  }
-  
-  const { data } = await supabase
-    .from('characters')
-    .update({ ...finalUpdates, updated_at: new Date().toISOString() })
-    .eq('id', char.id!)
-    .select()
-    .single();
-    
-  if (data) {
-    setChar(data as Character);
-    setHpInput(String(data.current_hp));
-    setManaInput(String(data.current_mana));
-  }
-  setSaving(false);
-}
 
   async function saveEquipment(eq: Equipment) {
     if (!eq.id) {
@@ -295,7 +246,7 @@ async function saveChar(updates: Partial<Character>) {
     setEquipment(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
     await supabase.from('equipment').update({ [field]: value }).eq('id', id);
   }
-  
+
 async function addExperience(amount: number) {
   if (!char || !unlocked) return;
   if (amount <= 0) return;
@@ -304,7 +255,6 @@ async function addExperience(amount: number) {
   let newExp = (char.exp || 0) + amount;
   let newLevel = char.level;
   let totalStatPointsGained = 0;
-  let bonusPointsTotal = 0;
   const statPointsPerLevel = char.species === 'slime' ? 4 : 3;
   
   // 2. 레벨업이 가능한지 반복 확인
@@ -313,15 +263,7 @@ async function addExperience(amount: number) {
     if (newExp >= neededExp && newLevel < 40) {
       newExp -= neededExp;
       newLevel++;
-      
-      // 기본 스탯 포인트
       totalStatPointsGained += statPointsPerLevel;
-      
-      // 10레벨 달성 시 보너스 2포인트 (10, 20, 30, 40...)
-      if (newLevel % 10 === 0) {
-        bonusPointsTotal += 2;
-        totalStatPointsGained += 2;
-      }
     } else {
       break;
     }
@@ -332,8 +274,7 @@ async function addExperience(amount: number) {
     newLevel,
     oldExp: char.exp,
     newExp,
-    statPointsGained: totalStatPointsGained,
-    bonusPoints: bonusPointsTotal
+    statPointsGained: totalStatPointsGained
   });
   
   // 3. 업데이트할 내용 준비
@@ -349,15 +290,10 @@ async function addExperience(amount: number) {
   // 5. UI 즉시 업데이트
   setChar(prev => prev ? { ...prev, ...updates } : prev);
   
-  // 6. 레벨업 알림 (보너스 정보 포함)
+  // 6. 레벨업 알림
   const levelUps = newLevel - char.level;
   if (levelUps > 0) {
-    let message = `🎉 ${levelUps}레벨 업! (${char.level} → ${newLevel})\n`;
-    message += `✨ 기본 스탯 포인트: +${levelUps * statPointsPerLevel}\n`;
-    if (bonusPointsTotal > 0) {
-      message += `🎁 10레벨 달성 보너스: +${bonusPointsTotal}`;
-    }
-    alert(message);
+    alert(`🎉 ${levelUps}레벨 업! +${totalStatPointsGained} 스탯 포인트 획득!`);
   }
 }
 
