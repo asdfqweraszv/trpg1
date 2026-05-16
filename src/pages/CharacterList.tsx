@@ -131,17 +131,10 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const inactiveCharacters = characters.filter(char => char.is_active === false);
 
   return (
-  <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-950 to-black text-gray-100 relative">
-    {/* 배경 오버레이 - 질감 효과 */}
-    <div className="fixed inset-0 opacity-5 pointer-events-none">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg...')] bg-repeat"></div>
-    </div>
-    
-    {/* 모서리 장식 - 빈티지 프레임 느낌 */}
-    <div className="fixed top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-amber-800/30 rounded-tl-2xl pointer-events-none"></div>
-    <div className="fixed top-0 right-0 w-32 h-32 border-r-2 border-t-2 border-amber-800/30 rounded-tr-2xl pointer-events-none"></div>
-    <div className="fixed bottom-0 left-0 w-32 h-32 border-l-2 border-b-2 border-amber-800/30 rounded-bl-2xl pointer-events-none"></div>
-    <div className="fixed bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-amber-800/30 rounded-br-2xl pointer-events-none"></div>
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-10">
+          <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">던전</h1>
             <p className="text-gray-400 mt-1 text-sm">끝까지 살아남으세요</p>
           </div>
