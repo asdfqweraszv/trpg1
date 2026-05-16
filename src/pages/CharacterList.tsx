@@ -115,6 +115,15 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
             <h1 className="text-3xl font-bold text-white tracking-tight">TRPG 캐릭터</h1>
             <p className="text-gray-400 mt-1 text-sm">캐릭터를 선택하거나 새로 만드세요</p>
           </div>
+           <div className="flex items-center gap-2">
+          {masterMode && (
+            <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">GM 모드</span>
+            // ❌ 여기에 버튼을 잘못 넣으면 오류 발생
+          )}
+          <button onClick={() => setShowMasterLogin(true)}>GM 로그인</button>
+          <button onClick={onCreate}>새 캐릭터</button>
+        </div>
+      </div>
           <div className="flex items-center gap-2">
             {masterMode && (
               <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">GM 모드</span>
