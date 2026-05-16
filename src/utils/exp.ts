@@ -56,7 +56,7 @@ export function calculateLevelUp(currentExp: number, currentLevel: number): { ne
   let level = currentLevel;
   let remainingExp = currentExp;
   
-  while (level <= 38) { // 최대 레벨 38까지
+  while (level <= 38) {
     const needed = getExpNeededForNextLevel(level);
     if (remainingExp >= needed) {
       remainingExp -= needed;
@@ -74,24 +74,44 @@ export function getStatPointsPerLevel(species: string): number {
   return species === 'slime' ? 4 : 3;
 }
 
+// 10레벨마다 추가로 받는 보너스 스탯 포인트
+export function getBonusStatPointsAtLevel(newLevel: number, oldLevel: number): number {
+  let bonusPoints = 0;
+  
+  for (let level = oldLevel + 1; level <= newLevel; level++) {
+    if (level % 10 === 0) {
+      bonusPoints += 2;
+    }
+  }
+  
+  return bonusPoints;
+}
+
 // 경험치 추가 시 레벨업 처리
 export function addExp(
   currentExp: number,
   currentLevel: number,
   addedExp: number,
   species: string
-): { newExp: number; newLevel: number; statPointsGained: number; totalStatPointsGained: number } {
+): { newExp: number; newLevel: number; totalStatPointsGained: number } {
   const newExpTotal = currentExp + addedExp;
   const { newLevel, remainingExp } = calculateLevelUp(newExpTotal, currentLevel);
   
   const levelUpCount = newLevel - currentLevel;
   const statPointsPerLevel = getStatPointsPerLevel(species);
-  const totalStatPointsGained = levelUpCount * statPointsPerLevel;
+  
+  // 기본 스탯 포인트
+  const baseStatPoints = levelUpCount * statPointsPerLevel;
+  
+  // 10레벨마다 받는 보너스 스탯 포인트
+  const bonusStatPoints = getBonusStatPointsAtLevel(newLevel, currentLevel);
+  
+  // 총 스탯 포인트 (이 변수 하나만 사용)
+  const totalStatPointsGained = baseStatPoints + bonusStatPoints;
   
   return {
     newExp: remainingExp,
     newLevel: newLevel,
-    statPointsGained: totalStatPointsGained,
     totalStatPointsGained: totalStatPointsGained
   };
 }
