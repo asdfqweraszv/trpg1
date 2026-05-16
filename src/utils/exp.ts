@@ -80,7 +80,7 @@ export function getBonusStatPointsAtLevel(newLevel: number, oldLevel: number): n
   
   for (let level = oldLevel + 1; level <= newLevel; level++) {
     if (level % 10 === 0) {
-      bonusPoints += 5;
+      bonusPoints += 2;
     }
   }
   
