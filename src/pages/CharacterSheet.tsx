@@ -905,7 +905,7 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
                 onChange={e => setChar(prev => prev ? { ...prev, special_abilities: e.target.value } : prev)}
                 onBlur={e => saveChar({ special_abilities: e.target.value })}
                 disabled={!unlocked}
-                placeholder="성격"
+                placeholder="덤벙대지만 진중한..."
                 rows={4}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
               />
