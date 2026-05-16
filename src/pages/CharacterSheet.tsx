@@ -271,7 +271,7 @@ async function addExperience(amount: number) {
       // 10레벨 달성 시 보너스 2포인트 (10, 20, 30, 40...)
       if (newLevel % 10 === 0) {
         bonusPointsTotal += 2;
-        totalStatPointsGained += 5;
+        totalStatPointsGained += 2;
       }
     } else {
       break;
