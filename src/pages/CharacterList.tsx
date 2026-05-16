@@ -17,7 +17,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const [showMasterLogin, setShowMasterLogin] = useState(false);
   const [masterPassword, setMasterPassword] = useState('');
   const [masterError, setMasterError] = useState('');
-  const [combatEnding, setCombatEnding] = useState(false);
+
 
   async function loadCharacters() {
     const { data } = await supabase
@@ -54,8 +54,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     alert('GM 모드에서만 사용 가능합니다.');
     return;
   }
-  
-  setCombatEnding(true);
   
   for (const char of characters) {
     // 장비 정보 가져오기
@@ -106,7 +104,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
     }
   
   await loadCharacters();
-  setCombatEnding(false);
   alert('전투가 종료되었습니다! 모든 캐릭터는 마나를 회복했습니다.');
 }
 
@@ -133,10 +130,9 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
                 <span className="text-xs text-amber-400 bg-amber-950/50 border border-amber-800/50 px-2 py-1 rounded">GM 모드</span>
                 <button
                   onClick={handleCombatEnd}
-                  disabled={combatEnding}
                   className="flex items-center gap-2 bg-red-600 hover:bg-red-500 disabled:bg-red-800 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
                 >
-                  <RefreshCw size={16} className={combatEnding ? 'animate-spin' : ''} />
+                  <RefreshCw size={16} />
                   전투 종료
                 </button>
               </>
