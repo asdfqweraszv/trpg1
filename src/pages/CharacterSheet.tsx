@@ -434,16 +434,17 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     );
   }
 
-  function EquipmentModal({ equipment, onSave, onClose }: { 
+function EquipmentModal({ equipment, onSave, onClose }: { 
   equipment: Equipment; 
   onSave: (eq: Equipment) => void; 
   onClose: () => void;
 }) {
   const [editEq, setEditEq] = useState<Equipment>({ ...equipment });
+  const [saving, setSaving] = useState(false);
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <h2 className="font-bold mb-4 text-lg">장비 편집: {editEq.slot_name}</h2>
         
         {/* 아이템 이름 */}
@@ -472,8 +473,8 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
           </select>
         </div>
         
-        {/* 모든 스탯 입력 필드 */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* 모든 스탯 입력 필드 - 3열로 변경 */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
           {ALL_STATS.map(stat => (
             <div key={stat}>
               <label className="block text-xs text-gray-400 mb-1">{STAT_LABELS[stat]}</label>
@@ -506,10 +507,15 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
         {/* 버튼 */}
         <div className="flex gap-2">
           <button
-            onClick={() => onSave(editEq)}
-            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg font-medium transition-colors"
+            onClick={async () => {
+              setSaving(true);
+              await onSave(editEq);
+              setSaving(false);
+            }}
+            disabled={saving}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white py-2 rounded-lg font-medium transition-colors"
           >
-            저장
+            {saving ? '저장 중...' : '저장'}
           </button>
           <button
             onClick={onClose}
