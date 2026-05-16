@@ -888,31 +888,67 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
           </div>
         )}
 
-                {tab === 'equipment' && (
-          <div className="space-y-3">
-            {EQUIPMENT_SLOTS.map(slot => {
-              const eq = equipment.find(e => e.slot_name === slot);
-              return (
-                <div key={slot} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-300">{slot}</span>
-                    {!eq && unlocked && (
-                      <button
-                        onClick={() => addEquipmentSlot(slot)}
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <Plus size={12} /> 장비 추가
-                      </button>
-                    )}
-                    {eq && unlocked && (
-                      <button
-                        onClick={() => removeEquipment(eq.id!)}
-                        className="text-red-500 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
+{tab === 'equipment' && (
+  <div className="space-y-3">
+    {EQUIPMENT_SLOTS.map(slot => {
+      const eq = equipment.find(e => e.slot_name === slot);
+      return (
+        <div key={slot} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-300">{slot}</span>
+            {!eq && unlocked && (
+              <button
+                onClick={() => addEquipmentSlot(slot)}
+                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <Plus size={12} /> 장비 추가
+              </button>
+            )}
+            {eq && unlocked && (
+              <button
+                onClick={() => removeEquipment(eq.id!)}
+                className="text-red-500 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
+          {eq ? (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <div 
+                  onClick={() => {
+                    setEditingEquipment(eq);
+                    setShowEquipmentModal(true);
+                  }}
+                  className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
+                >
+                  {eq.item_name || '클릭하여 장비 설정'}
+                </div>
+              </div>
+              
+              {/* 스탯 요약 표시 */}
+              <div className="flex flex-wrap gap-2">
+                {ALL_STATS.map(s => {
+                  const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
+                  const totalBonus = bonus + (eq.enhance_level || 0);
+                  if (totalBonus === 0) return null;
+                  return (
+                    <span key={s} className="text-xs px-2 py-1 rounded bg-gray-800 text-amber-400">
+                      {STAT_LABELS[s]} +{totalBonus}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-600 italic">장비 없음</div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+)}
 {eq ? (
   <div className="space-y-3">
     <div className="flex gap-2">
