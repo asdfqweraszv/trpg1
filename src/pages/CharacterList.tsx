@@ -136,11 +136,9 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         <div className="flex items-center justify-between mb-10">
 <div>
   <div className="flex items-center gap-2">
-    <span className="text-2xl">⚔️</span>
     <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
       던전
     </h1>
-    <span className="text-2xl">🛡️</span>
   </div>
   <p className="text-amber-600/70 mt-1 text-sm ml-10">끝까지 살아남으세요</p>
 </div>
