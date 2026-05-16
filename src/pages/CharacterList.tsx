@@ -136,7 +136,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">던전</h1>
-            <p className="text-gray-400 mt-1 text-sm">캐릭터를 선택하거나 새로 만드세요</p>
+            <p className="text-gray-400 mt-1 text-sm">끝까지 살아남으세요</p>
           </div>
           <div className="flex items-center gap-2">
             {masterMode && (
