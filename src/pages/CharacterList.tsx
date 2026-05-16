@@ -19,6 +19,15 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
   const [masterError, setMasterError] = useState('');
   const [combatEnding, setCombatEnding] = useState(false);
 
+  async function loadCharacters() {
+  const { data } = await supabase
+    .from('characters')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (data) setCharacters(data as Character[]);
+  setLoading(false);
+}
+  
   useEffect(() => {
     supabase
       .from('characters')
