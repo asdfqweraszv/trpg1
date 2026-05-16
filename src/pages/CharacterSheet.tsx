@@ -1,15 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase, uploadAvatar } from '../lib/supabase';
 import { Character, Equipment, SPECIES_LABELS, STAT_LABELS, SPECIES_BONUSES, FIXED_BASE_STATS, ItemRarity, JOB_BONUSES, Job, Stats } from '../types/character';
-import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20 } from '../utils/stats';
+import { getTotalStat, getEffectiveStat, verifyPassword, getSpeciesPassiveDescription, canEnhanceEquipment, getEnhanceDifficulty, getMaxEnhanceLevel, rollD20, getHpRegen, getManaRegen } from '../utils/stats';
 import {
   ArrowLeft, Lock, Unlock, ChevronUp, ChevronDown, Plus, Trash2,
-  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera
+  Shield, Swords, Zap, Heart, Sparkles, Brain, Wind, Star, AlertTriangle, Target, Camera, RefreshCw
 } from 'lucide-react';
 import { getExpNeededForNextLevel, getExpToNextLevel, addExp, calculateLevelUp } from '../utils/exp';
-import { Equipment } from '../types/character';
-import { getEffectiveStat, getHpRegen, getManaRegen } from '../utils/stats';
-import { RefreshCw } from 'lucide-react';
 
 interface Props {
   characterId: string;
