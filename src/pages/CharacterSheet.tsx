@@ -116,13 +116,62 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
 const statPoints = char?.stat_points ?? 0;
 const visibleStats = ALL_STATS;
 
-  async function saveChar(updates: Partial<Character>) {
-    if (!char) return;
-    setSaving(true);
-    const { data } = await supabase.from('characters').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', char.id!).select().single();
-    if (data) setChar(data as Character);
-    setSaving(false);
+async function saveChar(updates: Partial<Character>) {
+  if (!char) return;
+  setSaving(true);
+  
+  // 현재 최대 체력/마나 계산
+  const currentMaxHp = getEffectiveStat(char, 'hp', equipment);
+  const currentMaxMana = getEffectiveStat(char, 'mana', equipment);
+  
+  // 업데이트 후의 임시 캐릭터 객체 생성
+  const tempChar = { ...char, ...updates };
+  const newMaxHp = getEffectiveStat(tempChar, 'hp', equipment);
+  const newMaxMana = getEffectiveStat(tempChar, 'mana', equipment);
+  
+  // 최대 체력이 증가했고, current_hp가 업데이트에 없으면 자동 조정
+  let finalUpdates = { ...updates };
+  if (newMaxHp > currentMaxHp && updates.current_hp === undefined) {
+    const increase = newMaxHp - currentMaxHp;
+    const newCurrentHp = (char.current_hp || 0) + increase;
+    finalUpdates.current_hp = Math.min(newCurrentHp, newMaxHp);
+    
+    console.log('체력 자동 증가:', {
+      oldMaxHp: currentMaxHp,
+      newMaxHp,
+      oldCurrentHp: char.current_hp,
+      newCurrentHp: finalUpdates.current_hp
+    });
   }
+  
+  // 최대 마나가 증가했고, current_mana가 업데이트에 없으면 자동 조정
+  if (newMaxMana > currentMaxMana && updates.current_mana === undefined) {
+    const increase = newMaxMana - currentMaxMana;
+    const newCurrentMana = (char.current_mana || 0) + increase;
+    finalUpdates.current_mana = Math.min(newCurrentMana, newMaxMana);
+    
+    console.log('마나 자동 증가:', {
+      oldMaxMana: currentMaxMana,
+      newMaxMana,
+      oldCurrentMana: char.current_mana,
+      newCurrentMana: finalUpdates.current_mana
+    });
+  }
+  
+  const { data } = await supabase
+    .from('characters')
+    .update({ ...finalUpdates, updated_at: new Date().toISOString() })
+    .eq('id', char.id!)
+    .select()
+    .single();
+    
+  if (data) {
+    setChar(data as Character);
+    setHpInput(String(data.current_hp));
+    setManaInput(String(data.current_mana));
+  }
+  setSaving(false);
+}
 
   async function saveEquipment(eq: Equipment) {
     if (!eq.id) {
