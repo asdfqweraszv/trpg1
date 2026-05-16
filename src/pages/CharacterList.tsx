@@ -179,7 +179,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
             <div className="grid gap-3">
               {activeCharacters.map((char) => (
                 <div key={char.id} className="flex items-center gap-2">
-                  <button onClick={() => onSelect(char.id!)} className="flex-1 w-full text-left bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-xl p-5 transition-all group">
+                  <button onClick={() => onSelect(char.id!)} className="flex-1 w-full text-left bg-gray-900 hover:bg-gray-800 border border-amber-800/30 hover:border-amber-600/50 rounded-xl p-5 transition-all duration-300 group shadow-lg hover:shadow-amber-900/20">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xl font-bold text-gray-300 overflow-hidden">
