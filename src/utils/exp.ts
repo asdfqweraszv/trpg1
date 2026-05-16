@@ -74,6 +74,20 @@ export function getStatPointsPerLevel(species: string): number {
   return species === 'slime' ? 4 : 3;
 }
 
+// 10레벨마다 추가로 받는 보너스 스탯 포인트
+export function getBonusStatPointsAtLevel(newLevel: number, oldLevel: number): number {
+  let bonusPoints = 0;
+  
+  // oldLevel+1 부터 newLevel까지 체크하면서 10의 배수 레벨이 있으면 보너스 지급
+  for (let level = oldLevel + 1; level <= newLevel; level++) {
+    if (level % 10 === 0) {
+      bonusPoints += 5;  // 10레벨마다 5포인트 추가
+    }
+  }
+  
+  return bonusPoints;
+}
+
 // 경험치 추가 시 레벨업 처리
 export function addExp(
   currentExp: number,
