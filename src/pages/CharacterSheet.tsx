@@ -800,17 +800,18 @@ onSave={async (eq) => {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-4 bg-gray-900 rounded-lg p-1 border border-gray-800">
-          {(['stats', 'equipment', 'notes'] as Tab[]).map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                tab === t ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              {t === 'stats' ? '스탯' : t === 'equipment' ? '장비' : '메모'}
-            </button>
-          ))}
+          {(['stats', 'equipment', 'skills', 'notes'] as Tab[]).map(t => (
+  <button
+    key={t}
+    onClick={() => setTab(t)}
+    className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+      tab === t ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-300'
+    }`}
+  >
+    {t === 'stats' ? '스탯' : t === 'equipment' ? '장비' : t === 'skills' ? '스킬' : '메모'}
+  </button>
+))}
+
         </div>
 
         {tab === 'stats' && (
