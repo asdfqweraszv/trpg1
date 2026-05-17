@@ -308,5 +308,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
           </div>
         )}
       </div>
+    </div>
   );
 }
