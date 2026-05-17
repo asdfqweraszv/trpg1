@@ -308,6 +308,5 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
         )}
       </div>
     </div>
-    </div>  {/* ✅ 이 줄을 추가하세요! */}
   );
 }
