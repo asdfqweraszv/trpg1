@@ -83,6 +83,8 @@ export default function CharacterSheet({ characterId, onBack, masterMode, setMas
   const [uploading, setUploading] = useState(false);
   const [expInput, setExpInput] = useState('');
   const [showExpModal, setShowExpModal] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
+ const [showEquipmentModal, setShowEquipmentModal] = useState(false);
 
   const loadChar = useCallback(async () => {
     const { data: charData } = await supabase.from('characters').select('*, exp').eq('id', characterId).maybeSingle();
@@ -431,6 +433,102 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
       </div>
     );
   }
+
+function EquipmentModal({ equipment, onSave, onClose }: { 
+  equipment: Equipment; 
+  onSave: (eq: Equipment) => void; 
+  onClose: () => void;
+}) {
+  const [editEq, setEditEq] = useState<Equipment>({ ...equipment });
+  const [saving, setSaving] = useState(false);
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="font-bold mb-4 text-lg">장비 편집: {editEq.slot_name}</h2>
+        
+        {/* 아이템 이름 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">아이템 이름</label>
+          <input
+            type="text"
+            value={editEq.item_name}
+            onChange={e => setEditEq({ ...editEq, item_name: e.target.value })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            placeholder="아이템 이름"
+          />
+        </div>
+        
+        {/* 희귀도 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">희귀도</label>
+          <select
+            value={editEq.rarity}
+            onChange={e => setEditEq({ ...editEq, rarity: e.target.value as ItemRarity })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+          >
+            {RARITY_LIST.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* 모든 스탯 입력 필드 - 3열로 변경 */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {ALL_STATS.map(stat => (
+            <div key={stat}>
+              <label className="block text-xs text-gray-400 mb-1">{STAT_LABELS[stat]}</label>
+<input
+  type="number"
+  value={(editEq[`bonus_${stat}` as keyof Equipment] as number) || 0}
+  onChange={e => setEditEq({ 
+    ...editEq, 
+    [`bonus_${stat}`]: parseInt(e.target.value) || 0 
+  })}
+  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-white text-sm"
+  step="1"  // 음수도 쉽게 입력 가능
+/>
+            </div>
+          ))}
+        </div>
+        
+        {/* 강화 레벨 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-1">강화 레벨</label>
+          <input
+            type="number"
+            value={editEq.enhance_level || 0}
+            onChange={e => setEditEq({ ...editEq, enhance_level: parseInt(e.target.value) || 0 })}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            min="0"
+            max="4"
+          />
+        </div>
+        
+        {/* 버튼 */}
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              setSaving(true);
+              await onSave(editEq);
+              setSaving(false);
+            }}
+            disabled={saving}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white py-2 rounded-lg font-medium transition-colors"
+          >
+            {saving ? '저장 중...' : '저장'}
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg font-medium transition-colors"
+          >
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
   
   if (loading) {
     return (
@@ -478,6 +576,29 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
       )}
 
           {showExpModal && <ExpModal />}
+      {showEquipmentModal && editingEquipment && (
+  <EquipmentModal
+    equipment={editingEquipment}
+onSave={async (eq) => {
+  // 모든 업데이트를 병렬로 실행
+  const promises = [];
+  
+  promises.push(updateEquipmentField(eq.id!, 'item_name', eq.item_name));
+  promises.push(updateEquipmentField(eq.id!, 'rarity', eq.rarity));
+  promises.push(updateEquipmentField(eq.id!, 'enhance_level', eq.enhance_level || 0));
+  
+  for (const stat of ALL_STATS) {
+    promises.push(updateEquipmentField(eq.id!, `bonus_${stat}`, eq[`bonus_${stat}` as keyof Equipment] as number));
+  }
+  
+  await Promise.all(promises);  // 병렬 실행으로 빠르게!
+  
+  setShowEquipmentModal(false);
+  setEditingEquipment(null);
+  alert('장비가 저장되었습니다!');
+}}
+  />
+)}
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -725,15 +846,17 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
                       </div>
                     )}
                     {equipment.map(eq => {
-                      const bonus = eq[`bonus_${s}` as keyof Equipment] as number;
-                      if (!bonus) return null;
-                      return (
-                        <div key={eq.id} className="flex justify-between">
-                          <span className="truncate max-w-16">{eq.item_name || eq.slot_name}</span>
-                          <span className="text-amber-400">+{bonus}</span>
-                        </div>
-                      );
-                    })}
+  const bonus = eq[`bonus_${s}` as keyof Equipment] as number;
+  if (!bonus) return null;
+  return (
+    <div key={eq.id} className="flex justify-between">
+      <span className="truncate max-w-16">{eq.item_name || eq.slot_name}</span>
+      <span className={bonus > 0 ? 'text-amber-400' : 'text-red-400'}>
+        {bonus > 0 ? `+${bonus}` : bonus}
+      </span>
+    </div>
+  );
+})}
                   </div>
 
                   {unlocked && !isFixed && (
@@ -778,134 +901,109 @@ async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
           </div>
         )}
 
-                {tab === 'equipment' && (
-          <div className="space-y-3">
-            {EQUIPMENT_SLOTS.map(slot => {
-              const eq = equipment.find(e => e.slot_name === slot);
-              return (
-                <div key={slot} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-300">{slot}</span>
-                    {!eq && unlocked && (
-                      <button
-                        onClick={() => addEquipmentSlot(slot)}
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <Plus size={12} /> 장비 추가
-                      </button>
+{tab === 'equipment' && (
+  <div className="space-y-3">
+    {EQUIPMENT_SLOTS.map(slot => {
+      const eq = equipment.find(e => e.slot_name === slot);
+      return (
+        <div key={slot} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-300">{slot}</span>
+            {!eq && unlocked && (
+              <button
+                onClick={() => addEquipmentSlot(slot)}
+                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <Plus size={12} /> 장비 추가
+              </button>
+            )}
+            {eq && unlocked && (
+              <button
+                onClick={() => removeEquipment(eq.id!)}
+                className="text-red-500 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
+          
+          {eq ? (
+            <div className="space-y-3">
+              {/* 클릭 가능한 장비 이름 */}
+              <div 
+                onClick={() => {
+                  setEditingEquipment(eq);
+                  setShowEquipmentModal(true);
+                }}
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white cursor-pointer hover:bg-gray-700 transition-colors"
+              >
+                {eq.item_name || '클릭하여 장비 설정'}
+              </div>
+              
+              {/* 스탯 요약 표시 (0 아닌 것만) */}
+              <div className="flex flex-wrap gap-2">
+  {ALL_STATS.map(s => {
+    const bonus = (eq[`bonus_${s}` as keyof Equipment] as number) || 0;
+    const totalBonus = bonus + (eq.enhance_level || 0);
+    if (totalBonus === 0) return null;
+    return (
+      <span key={s} className={`text-xs px-2 py-1 rounded bg-gray-800 ${
+        totalBonus > 0 ? 'text-amber-400' : 'text-red-400'
+      }`}>
+        {STAT_LABELS[s]} {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
+      </span>
+    );
+  })}
+</div>
+              
+              {/* 드워프 강화 버튼 */}
+              {char.species === 'dwarf' && unlocked && eq.item_name && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-gray-500">
+                    강화: +{eq.enhance_level ?? 0}강
+                    {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                      <span className="text-gray-600 ml-1">
+                        (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
+                      </span>
                     )}
-                    {eq && unlocked && (
-                      <button
-                        onClick={() => removeEquipment(eq.id!)}
-                        className="text-red-500 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                  {eq ? (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <input
-                          value={eq.item_name}
-                          onChange={e => updateEquipmentField(eq.id!, 'item_name', e.target.value)}
-                          disabled={!masterMode}
-                          placeholder="아이템 이름"
-                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 transition-colors"
-                        />
-                        {masterMode && (
-                          <select
-                            value={eq.rarity || '일반'}
-                            onChange={e => updateEquipmentField(eq.id!, 'rarity', e.target.value)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${RARITY_COLORS[eq.rarity || '일반']}`}
-                          >
-                            {RARITY_LIST.map(r => (
-                              <option key={r} value={r}>{r}</option>
-                            ))}
-                          </select>
-                        )}
-                        {!masterMode && eq.rarity && (
-                          <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${RARITY_COLORS[eq.rarity]}`}>
-                            {eq.rarity}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* 드워프 강화 버튼 */}
-                      {char.species === 'dwarf' && unlocked && eq.item_name && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
-                            강화: +{eq.enhance_level ?? 0}강
-                            {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                              <span className="text-gray-600 ml-1">
-                                (다음: 주사위 {getEnhanceDifficulty(eq.enhance_level ?? 0)} 이상)
-                              </span>
-                            )}
-                          </span>
-                          {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
-                            <button
-                              onClick={() => enhanceEquipment(eq)}
-                              className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
-                            >
-                              강화
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 강화 결과 메시지 */}
-                      {enhanceMessage && (
-                        <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
-                          {enhanceMessage}
-                        </div>
-                      )}
-
-                      {/* 스탯 보너스 목록 */}
-                      <div className="grid grid-cols-2 gap-2">
-                        {ALL_STATS.map(s => {
-                          const bonusKey = `bonus_${s}` as keyof Equipment;
-                          const val = (eq[bonusKey] as number) ?? 0;
-                          const enhanceBonus = (eq.enhance_level ?? 0);
-                          const totalBonus = val + enhanceBonus;
-                          return (
-                            <div key={s} className="flex items-center gap-2">
-                              <span className={`text-xs w-16 ${STAT_COLOR[s]}`}>{STAT_LABELS[s]}</span>
-                              {masterMode ? (
-                                <input
-                                  type="number"
-                                  value={val}
-                                  onChange={e => updateEquipmentField(eq.id!, bonusKey, Number(e.target.value))}
-                                  className="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500"
-                                />
-                              ) : (
-                                <span className={`text-xs font-medium ${totalBonus > 0 ? 'text-amber-400' : totalBonus < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-                                  {totalBonus > 0 ? `+${totalBonus}` : totalBonus}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-xs text-gray-600 italic">장비 없음</div>
+                  </span>
+                  {(eq.enhance_level ?? 0) < getMaxEnhanceLevel() && (
+                    <button
+                      onClick={() => enhanceEquipment(eq)}
+                      className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-2 py-0.5 rounded transition-colors"
+                    >
+                      강화
+                    </button>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        )}
+              )}
+              
+              {/* 강화 결과 메시지 */}
+              {enhanceMessage && (
+                <div className="mt-2 text-xs text-amber-400 bg-amber-950/30 border border-amber-800/30 rounded p-2">
+                  {enhanceMessage}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-600 italic">장비 없음</div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+)}
 
         {tab === 'notes' && (
           <div className="space-y-4">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <label className="block text-sm text-gray-400 mb-2">특수 능력 / 패시브</label>
+              <label className="block text-sm text-gray-400 mb-2">성격</label>
               <textarea
                 value={char.special_abilities}
                 onChange={e => setChar(prev => prev ? { ...prev, special_abilities: e.target.value } : prev)}
                 onBlur={e => saveChar({ special_abilities: e.target.value })}
                 disabled={!unlocked}
-                placeholder="성격"
+                placeholder="이세계의 나는..."
                 rows={4}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
               />
