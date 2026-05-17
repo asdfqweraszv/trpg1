@@ -11,21 +11,17 @@ export async function uploadAvatar(characterId: string, file: File): Promise<str
     const fileName = `${characterId}-${Date.now()}.${fileExt}`;
     const filePath = fileName;
 
-    const { error, data } = await supabase.storage
+    const { error } = await supabase.storage
       .from('avatars')
-      .upload(filePath, file, {
-        upsert: true,
-        cacheControl: '3600',
-        contentType: file.type,
-      });
+      .upload(filePath, file, { upsert: true });
 
     if (error) {
       console.error('Upload error:', error);
       return null;
     }
 
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    return urlData.publicUrl;
+    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    return data.publicUrl;
   } catch (err) {
     console.error('Error:', err);
     return null;
@@ -33,14 +29,10 @@ export async function uploadAvatar(characterId: string, file: File): Promise<str
 }
 
 export async function createAvatarsBucket() {
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const exists = buckets?.some(b => b.name === 'avatars');
-    
-    if (!exists) {
-      await supabase.storage.createBucket('avatars', { public: true });
-    }
-  } catch (err) {
-    console.error('Bucket error:', err);
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const exists = buckets?.some(b => b.name === 'avatars');
+  
+  if (!exists) {
+    await supabase.storage.createBucket('avatars', { public: true });
   }
 }
