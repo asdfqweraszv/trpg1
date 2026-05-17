@@ -1021,8 +1021,20 @@ onSave={async (eq) => {
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
               />
             </div>
-          </div>
-        )}
+                <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+      <label className="block text-sm text-gray-400 mb-2">외형</label>
+      <textarea
+        value={char.combat_notes || ''}
+        onChange={e => setChar(prev => prev ? { ...prev, combat_notes: e.target.value } : prev)}
+        onBlur={e => saveChar({ combat_notes: e.target.value })}
+        disabled={!unlocked}
+        placeholder="인규형이부탁함"
+        rows={4}
+        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 disabled:opacity-60 resize-none transition-colors"
+      />
+    </div>
+  </div>
+)}
         {tab === 'skills' && (
   <div className="space-y-4">
     <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
