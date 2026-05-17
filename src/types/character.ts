@@ -237,6 +237,7 @@ export interface Character {
   password_hash: string;
   equipment?: Equipment[];
   avatar_url?: string; 
+  gold?: number;
 }
 
 export const SPECIES_LABELS: Record<Species, string> = {
