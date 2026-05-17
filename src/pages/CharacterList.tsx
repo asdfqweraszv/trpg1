@@ -189,6 +189,33 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
                         <div>
                           <div className="flex items-center gap-2"><span className="font-semibold text-white text-lg">{char.name}</span><span className="text-xs text-gray-500">Lv.{char.level}</span></div>
                           <div className="flex items-center gap-2 mt-1"><span className="text-xs text-gray-400">{SPECIES_LABELS[char.species as keyof typeof SPECIES_LABELS]}</span><span className="text-gray-600">·</span><span className={`text-xs px-2 py-0.5 rounded border font-medium ${jobColors[char.job] ?? 'text-gray-400 bg-gray-800 border-gray-700'}`}>{char.job}</span></div>
+                         <div className="relative group mt-2">
+    <div className="flex flex-wrap gap-1">
+      {JOB_BONUSES[char.job as Job]?.skills.slice(0, 2).map((skill, idx) => (
+        <span key={idx} className="text-xs px-1.5 py-0.5 rounded bg-gray-800 text-blue-400 border border-gray-700">
+          {skill.name}
+        </span>
+      ))}
+      {JOB_BONUSES[char.job as Job]?.skills.length > 2 && (
+        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-500 cursor-help">
+          +{JOB_BONUSES[char.job as Job].skills.length - 2}
+        </span>
+      )}
+    </div>
+    {/* 툴팁 */}
+    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-10">
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-2 shadow-xl max-w-xs">
+        <p className="text-xs font-semibold text-amber-400 mb-1">{char.job} 스킬</p>
+        {JOB_BONUSES[char.job as Job]?.skills.map((skill, idx) => (
+          <div key={idx} className="text-xs text-gray-300 mt-1">
+            <span className="text-blue-400">{skill.name}</span>
+            <span className="text-gray-500 text-xs ml-1">(지능 {skill.requiredIntelligence})</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
