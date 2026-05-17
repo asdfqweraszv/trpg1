@@ -1023,6 +1023,27 @@ onSave={async (eq) => {
             </div>
           </div>
         )}
+        {tab === 'skills' && (
+  <div className="space-y-4">
+    <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+      <h3 className="text-lg font-semibold text-amber-400 mb-3">{char.job} 스킬</h3>
+      <div className="space-y-3">
+        {JOB_BONUSES[char.job as Job]?.skills.map((skill, idx) => (
+          <div key={idx} className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white font-medium">{skill.name}</span>
+              <span className="text-xs text-blue-400">요구 지능: {skill.requiredIntelligence}</span>
+            </div>
+            <p className="text-sm text-gray-400 whitespace-pre-line">{skill.description}</p>
+            {skill.cost && (
+              <p className="text-xs text-amber-400 mt-2">소모: {skill.cost}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
