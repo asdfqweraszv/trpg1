@@ -230,7 +230,6 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
                         </div>
                         <ChevronRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
                       </div>
-                    </div>
                   </button>
                   {masterMode && (
                     <button
