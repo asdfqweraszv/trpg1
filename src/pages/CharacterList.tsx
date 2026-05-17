@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Character, SPECIES_LABELS, Equipment } from '../types/character';
 import { verifyPassword, getEffectiveStat, getHpRegen, getManaRegen } from '../utils/stats';
 import { Shield, Swords, Zap, Heart, User, Plus, ChevronRight, Sparkles, Wind, Star, Package, Users } from 'lucide-react';
+import { JOB_BONUSES, Job } from '../types/character';
 
 interface Props {
   onSelect: (id: string) => void;
