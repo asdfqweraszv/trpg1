@@ -307,7 +307,7 @@ export default function CharacterList({ onSelect, onCreate, masterMode, setMaste
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
+      </div>  {/* max-w-4xl 닫힘 */}
+    </div>    {/* 배경 div 닫힘 */}
+  );        // 함수 닫힘
+}          // export 닫힘
