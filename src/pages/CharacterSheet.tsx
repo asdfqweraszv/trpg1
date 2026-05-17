@@ -63,7 +63,7 @@ const ALL_STATS = ['hp', 'attack', 'spell', 'mana', 'intelligence', 'agility', '
 const EQUIPMENT_SLOTS = ['장비 1', '장비 2', '장비 3', '장비 4', '장비 5'];
 const RARITY_LIST: ItemRarity[] = ['저급', '일반', '고급', '희귀', '전설'];
 
-type Tab = 'stats' | 'equipment' | 'notes';
+type Tab = 'stats' | 'equipment' | 'notes' | 'skills';
 
 export default function CharacterSheet({ characterId, onBack, masterMode, setMasterMode }: Props) {
   const [char, setChar] = useState<Character | null>(null);
