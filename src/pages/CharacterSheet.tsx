@@ -702,7 +702,25 @@ onSave={async (eq) => {
             </div>
 <div className="text-right">
   <div className="text-2xl font-bold text-white">Lv.{char.level}</div>
-  
+    {/* ✅ 골드 표시 */}
+  <div className="mt-2 flex items-center justify-end gap-2">
+    <span className="text-yellow-400">💰</span>
+    {unlocked ? (
+      <input
+        type="number"
+        value={char.gold || 0}
+        onChange={e => {
+          const newGold = parseInt(e.target.value) || 0;
+          setChar(prev => prev ? { ...prev, gold: newGold } : prev);
+        }}
+        onBlur={e => saveChar({ gold: parseInt(e.target.value) || 0 })}
+        className="w-24 text-right bg-gray-800 border border-gray-700 rounded px-2 py-1 text-yellow-400 text-sm focus:outline-none focus:border-yellow-500"
+      />
+    ) : (
+      <span className="text-yellow-400 text-lg font-bold">{char.gold || 0}</span>
+    )}
+    <span className="text-gray-400 text-sm">G</span>
+  </div>
   {/* 경험치 바 */}
   <div className="mt-2">
     <div className="flex justify-between text-xs text-gray-400 mb-1">
